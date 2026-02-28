@@ -699,6 +699,11 @@
                       </span>
                    </a>
                     @else
+                    <a href="{{ route('backup.index') }}" class="cmn__btn outline__btn me-2" title="Backup & Restore Data">
+                        <span>
+                            <i class="bi bi-cloud-arrow-down-fill me-1"></i> Backup
+                        </span>
+                    </a>
                     <form action="{{ route('logout') }}" method="POST" style="display:inline;">
                         @csrf
                         <button type="submit" class="cmn__btn outline__btn" >

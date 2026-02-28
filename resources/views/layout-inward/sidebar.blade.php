@@ -103,5 +103,13 @@
          </a>
       </li>
 
+      <!-- BACKUP & RESTORE -->
+      <li class="common__sideitems">
+         <a href="{{ route('backup.index') }}" class="sidebar-link {{ request()->routeIs('backup.index') ? 'active' : '' }}">
+            <i class="bi bi-shield-lock"></i>
+            <span>Backup & Restore</span>
+         </a>
+      </li>
+
    </ul>
 </div>

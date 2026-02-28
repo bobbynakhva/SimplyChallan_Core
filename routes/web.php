@@ -42,6 +42,11 @@ Route::middleware('auth')->group(function () {
     // License Management
     Route::get('/admin/license', [LicenseController::class, 'index'])->name('admin.license.index');
     Route::post('/admin/license/reset', [LicenseController::class, 'resetBinding'])->name('admin.license.reset');
+
+    // Backup & Restore
+    Route::get('/settings/backup', [App\Http\Controllers\BackupController::class, 'index'])->name('backup.index');
+    Route::post('/settings/backup/export', [App\Http\Controllers\BackupController::class, 'export'])->name('backup.export');
+    Route::post('/settings/backup/restore', [App\Http\Controllers\BackupController::class, 'restore'])->name('backup.restore');
 });
 
 
