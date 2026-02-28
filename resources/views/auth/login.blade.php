@@ -1,59 +1,69 @@
-@extends('layouts.app')
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In - Simply Challan</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    
+    <!-- Modern Login Styles -->
+    <link rel="stylesheet" href="{{ asset('assets/css/modern-login.css') }}?v={{ time() }}">
+</head>
+<body>
 
-@section('title', 'Home')
-
-@section('content')
-<section class="signup__section bluar__shape">
-   <div class="container">
-         <div class="row justify-content-center">
-                              <div class="col-xl-6 col-lg-6">
-                                 <div class="signup__boxes">
-                                   <h4 class="text-center fw-bold">Sign in to Simply Challan App</h4>
-               <p class="text-center text-muted">Sign in to your account and make Simply Challan payments and bookings faster.</p>
-               
-                                    <form action="{{ route('loginpost') }}" method="POST" class="signup__form pt__40">
-                                       @csrf
-                                       <div class="row g-4 justify-content-center">
-               
-                 <div class="col-lg-12">
-                                             <div class="input__grp">
-                           <label for="email">Enter Your Email ID</label>
-                           <input type="email" id="email" name="email" class="form-control @error('email') is-invalid @enderror" placeholder="Your email ID here" value="{{ old('email') }}" required autocomplete="email" autofocus>
-                           @error('email')
-                              <span class="invalid-feedback" role="alert">
-                                 <strong>{{ $message }}</strong>
-                              </span>
-                           @enderror
-                        </div>
-                     </div>
-                     <div class="col-lg-12">
-                                             <div class="input__grp">
-                           <label for="password">Enter Your Password</label>
-                           <input type="password" id="password" name="password" class="form-control @error('password') is-invalid @enderror" placeholder="Enter password" required autocomplete="current-password">
-                           @error('password')
-                              <span class="invalid-feedback" role="alert">
-                                 <strong>{{ $message }}</strong>
-                              </span>
-                           @enderror
-                        </div>
-                     </div>
-                     @if (Route::has('password.request'))
-                        <div class="col-lg-12">
-                           <a href="{{ route('password.request') }}" class="forgot">Forgot Password?</a>
-                        </div>
-                     @endif
-                     <div class="col-lg-12">
-                        <div class="input__grp text-center">
-                          <button type="submit" class="cmn__btn">
-                              <span>Sign In</span>
-                          </button>
-                        </div>
-                     </div>
-                  </div>
-               </form>
+    <section id="modern-login-section">
+        <div class="ml-card">
+            <div class="ml-header">
+                <h4 class="ml-title">Welcome Back</h4>
+                <p class="ml-subtitle">Sign in to your account and manage your payments efficiently.</p>
             </div>
-         </div>
-      </div>
-   </div>
-</section>
-@endsection
+            
+            <form action="{{ route('loginpost') }}" method="POST">
+                @csrf
+                
+                <div class="ml-form-group">
+                    <label for="email" class="ml-label">Email Address</label>
+                    <input type="email" id="email" name="email" 
+                           class="ml-input @error('email') is-invalid @enderror" 
+                           placeholder="name@company.com" 
+                           value="{{ old('email') }}" 
+                           required autocomplete="email" autofocus>
+                    @error('email')
+                        <span class="bad-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+
+                <div class="ml-form-group">
+                    <label for="password" class="ml-label">Password</label>
+                    <input type="password" id="password" name="password" 
+                           class="ml-input @error('password') is-invalid @enderror" 
+                           placeholder="Enter your password" 
+                           required autocomplete="current-password">
+                    @error('password')
+                        <span class="bad-feedback" role="alert">
+                            <strong>{{ $message }}</strong>
+                        </span>
+                    @enderror
+                </div>
+
+                @if (Route::has('password.request'))
+                    <div class="ml-actions">
+                        <a href="{{ route('password.request') }}" class="ml-forgot">Forgot Password?</a>
+                    </div>
+                @endif
+
+                <button type="submit" class="ml-btn">
+                    Sign In
+                </button>
+            </form>
+        </div>
+    </section>
+
+</body>
+</html>

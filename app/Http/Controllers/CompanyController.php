@@ -139,4 +139,15 @@ class CompanyController extends Controller
         ]);
     }
 
+    public function selectForm()
+    {
+        // Fetch all companies under the authenticated admin
+        // Assuming 'User' model represents companies or login-able entities as seen in 'search' method
+        $companies = User::where('parent_id', Auth::id())->select('id', 'name')->get();
+        
+        $years = FinancialYear::all();
+
+        return view('front.companies.select', compact('companies', 'years'));
+    }
+
 }

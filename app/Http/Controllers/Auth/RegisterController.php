@@ -85,8 +85,6 @@ class RegisterController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'phone' => 'required|unique:users',
-            'gstin'   => 'nullable|regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}[Z]{1}[0-9A-Z]{1}$/',
-            'address' => 'nullable|string|max:20',
             'industry_address' => 'nullable|string',
             'password' => 'required|min:6',
             'password_confirmation' => 'required_with:password|same:password|min:6'
@@ -97,8 +95,6 @@ class RegisterController extends Controller
             'name' => $request->name,
             'email' => $request->email,
             'phone' => $request->phone,
-            'gstin' => $request->gstin,
-            'address' => $request->address,
             'password' => Hash::make($request->password),
             'is_used' => 1,
             'email_verified_at' => now(),

@@ -58,7 +58,7 @@
                 <td><strong>Date:</strong></td>
                 @php
                     $firstItem = $challan->inwarditems->first();
-                    $latestGoodsStock = $firstItem?->latestGoodsStock;
+                    $latestGoodsStock = $goodsStock ?? $firstItem?->latestGoodsStock;
                 @endphp
 
                 @if($latestGoodsStock)
@@ -107,8 +107,8 @@
                 <th>Qty</th>
                 <th>Unit</th>
                 <th>Pcs</th>
-                <th>Date</th>
-                <th>Challan No</th>
+                {{-- <th>Date</th> --}}
+                {{-- <th>Challan No</th> --}}
             </tr>
         </thead>
         <tbody>
@@ -118,8 +118,8 @@
                 <td>{{ $latestGoodsStock->kgs }}</td>
                 <td>Kgs</td>
                 <td>{{ $latestGoodsStock->pcs }}</td>
-                <td>{{ $latestGoodsStock->created_at->format('d-m-Y') }}</td> <!-- New Date Column -->
-                                <td>{{ $challan_no ?? '' }}</td>
+                {{-- <td>{{ $latestGoodsStock->created_at->format('d-m-Y') }}</td> --}} <!-- New Date Column -->
+                {{-- <td>{{ $challan_no ?? '' }}</td> --}}
 
             </tr>
             <tr>
@@ -127,7 +127,7 @@
                 <th>{{ $latestGoodsStock->kgs }}</th>
                 <th>Kgs</th>
                 <th>{{ $latestGoodsStock->pcs }}</th>
-                <th></th>
+                {{-- <th></th> --}}
             </tr>
         </tbody>
     </table>
@@ -150,7 +150,7 @@
         <tr>
             <td width="45%">
                 <div><strong>Place:</strong> JAMNAGAR</div><br>
-                <div><strong>Date:</strong> {{ $challan->date->format('d-m-Y') }}</div>
+                <div><strong>Date:</strong> {{ $latestGoodsStock ? $latestGoodsStock->created_at->format('d-m-Y') : '' }}</div>
             </td>
             <td width="55%" class="text-end">
                 <div style="height: 100px;"></div>

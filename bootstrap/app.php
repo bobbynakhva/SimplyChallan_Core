@@ -11,7 +11,12 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->alias([
+            'trial' => \App\Http\Middleware\TrialLock::class,
+        ]);
+        $middleware->web(append: [
+            \App\Http\Middleware\TrialLock::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

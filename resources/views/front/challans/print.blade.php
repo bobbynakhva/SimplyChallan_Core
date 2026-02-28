@@ -13,6 +13,7 @@
             margin: auto;
             border: 1px solid #000;
             display: none; /* Initially hidden */
+            page-break-after: always;
         }
         /*.challan-copy {
             border: 2px solid #000;
@@ -100,7 +101,7 @@
     <button class="btn btn-primary" onclick="printChallan('original')">Print Original</button>
     <button class="btn btn-success" onclick="printChallan('duplicate')">Print Duplicate</button>
     <button class="btn btn-warning" onclick="printChallan('triplicate')">Print Triplicate</button>
-    <button class="btn btn-print" onclick="window.print()">Print All</button>
+    <button class="btn btn-print" onclick="printAll()">Print All</button>
 </div>
 
 <!-- Challan Copies -->
@@ -111,20 +112,32 @@
         <div class="text-center">Under Rule 55 of the Central Goods and Service Tax Rules, 2017.</div>
             <div class="text-center">{{ $copyType }} Copy</div>
         <table>
-        <tr>
-                <td colspan="2">
-                    <p>Name of the Consignor:</p>  <br>
-                    <p>Address:</p> <br>
-                    <p>GSTIN No.:</p>
+            <tr>
+                <td colspan="2" style="border-bottom: none;">
+                    <p>Name of the Consignor:</p>
                 </td>
-                <td colspan="4">
-                    <h3><b>{{ strtoupper($challan->user->name) }}</b></h3>
-                    <p><b>{{ $challan->user->address }}</b></p><br>
-                    <p><b>{{ $challan->user->gstin }}</b></p>
+                <td colspan="4" style="border-bottom: none;">
+                    <h3 style="margin: 0;"><b>{{ strtoupper($challan->user->name) }}</b></h3>
                 </td>
-                <td >
+                <td rowspan="3">
                     <p>CHALLAN SR. NO: {{ $challan->challan_number }}</p> 
                     <p>CHALLAN DATE:  {{ \Carbon\Carbon::parse($challan->date)->format('d.m.Y') }}</p>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border-top: none; border-bottom: none;">
+                    <p>Address:</p>
+                </td>
+                <td colspan="4" style="border-top: none; border-bottom: none;">
+                    <p><b>{{ $challan->user->address }}</b></p>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" style="border-top: none;">
+                    <p>GSTIN No.:</p>
+                </td>
+                <td colspan="4" style="border-top: none;">
+                    <p><b>{{ $challan->user->gstin }}</b></p>
                 </td>
             </tr>
         </table>
@@ -134,7 +147,7 @@
            
             <thead>
                 <tr>
-                    <th>Description of Inputs/Partially Processed Inputs</th>
+                    <th>1. Description of Inputs/Partially Processed Inputs</th>
                     <th>HSN Code</th>
                     <th>Price (Kgs)</th>
                     <th>Quantity (Kgs)</th>
@@ -143,6 +156,7 @@
             <tbody>
                 @php
                     $amount = 0;
+                    $totalQty = 0;
                 @endphp
                 @foreach($challan->items as $item)
                     <tr>
@@ -153,9 +167,16 @@
                     </tr>
                     @php
                         $amount += $item->total_value; // Correct way to accumulate total amount
+                        $totalQty += $item->total_qty;
                     @endphp
                 @endforeach
             </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="text-left bold" style="text-align: left;">2. Quantity in kgs</td>
+                    <td class="text-center bold">{{ $totalQty }}</td>
+                </tr>
+            </tfoot>
 
         </table>
         <table border="1" width="100%" cellpadding="6" cellspacing="0">
@@ -165,22 +186,22 @@
                        <col style="width: 55%;">  <!-- Third column (fills the rest) -->
                    </colgroup>
                     <tr>
-                        <th>1.</th>
+                        <th>3.</th>
                         <th>Vehicle No.</th>
                         <td class="text-center">{{ $challan->vehicle_no ?? 'N/A' }}</td>
                     </tr>
                     <tr>
-                        <th>2.</th>
+                        <th>4.</th>
                         <th>No of Packages</th>
                         <td class="text-center">{{ $challan->no_of_packages }}</td>
                     </tr>
                     <tr>
-                        <th>3.</th>
+                        <th>5.</th>
                         <th>Value of Inputs/Partially Processed Goods</th>
                         <td class="text-center">{{ $challan->grand_total }}</td>
                     </tr>
                     <tr>
-    <th>4.</th>
+    <th>6.</th>
     <th>Rate of Tax</th>
     <td class="text-center">
         CGST @ {{ intval($challan->cgst) }}% &nbsp;&nbsp;&nbsp;
@@ -189,7 +210,7 @@
     </td>
 </tr>
 <tr>
-    <th>5.</th>
+    <th>7.</th>
     <th>Tax Amount</th>
     <td class="text-center">
         <strong>{{ number_format(($amount * $challan->cgst) / 100, 2) }}</strong> &nbsp;&nbsp;
@@ -199,22 +220,22 @@
 </tr>
 
                     <tr>
-                     <th>6.</th>
+                     <th>8.</th>
                         <th>Purpose</th>
                         <td class="text-center">{{ $challan->purpose->name }}</td>
                     </tr>
                     <tr>
-                     <th>7.</th>
+                     <th>9.</th>
                         <th>Name of the Jobworker</th>
                         <td class="text-center"><b>{{ $challan->industry_name }}</b></td>
                     </tr>
                     <tr>
-                     <th>8.</th>
+                     <th>10.</th>
                         <th>Address of the Jobworker</th>
                         <td class="text-center"><b>{{ $challan->industry_address }}</b></td>
                     </tr>
                     <tr>
-                     <th>9.</th>
+                     <th>11.</th>
                         <th>GSTIN No. of Jobworker</th>
                         <td class="text-center"><b>{{ $challan->industry_gstin }}</b></td>
                     </tr>
@@ -223,13 +244,13 @@
         <tr>
             <td colspan="1" width="60%">
                 <div>Place: JAMNAGAR &nbsp; STATE: GUJARAT &nbsp; STATE CODE: 24</div>
-                <div>Date: {{ \Carbon\Carbon::now()->format('d.m.Y') }}</duv>
+                <div>Date: {{ \Carbon\Carbon::now()->format('d.m.Y') }}</div>
             </td>
             <td width="40%">
                
                     <div>&nbsp;<strong>FOR, <span style="text-transform: uppercase;">&nbsp;{{ strtoupper($challan->user->name) }}</span></strong></div>
                     <div style="color: red; font-weight: bold;"></div><br><br><br>
-                    <div><strong>ATHO. SIGN:</strong></div>
+                    <div><strong>AUTH. SIGN:</strong></div>
                 
             </td>
         </tr>
@@ -266,7 +287,7 @@
         <span>&nbsp;&nbsp;PLACE: JAMNAGAR,</span> <br>
         <span>&nbsp;&nbsp;STATE: GUJARAT,</span> <br>
         <span>&nbsp;&nbsp;STATE CODE: 24</span> <br>
-        <span>&nbsp;&nbsp;DATE: {{ \Carbon\Carbon::parse($challan->date)->format('d.m.Y') }}</span> <br>
+        <span>&nbsp;&nbsp;DATE: </span> <br>
     </div>
     <div style="text-align: right;">
         <strong>AUTHORISED SIGNATORY : _____________</strong>
@@ -296,7 +317,7 @@
 <script>
     function printChallan(type) {
         // Hide all challan copies
-        document.querySelectorAll('.challan-copy').forEach(el => el.style.display = 'none');
+        document.querySelectorAll('.container').forEach(el => el.style.display = 'none');
 
         // Show only the selected challan
         document.getElementById('challan-' + type).style.display = 'block';
@@ -304,10 +325,18 @@
         // Print the selected challan
         window.print();
 
-        // Restore visibility after printing
-        setTimeout(() => {
-            document.querySelectorAll('.challan-copy').forEach(el => el.style.display = 'none');
-        }, 1000);
+        // Restore visibility after printing (optional, or reload page)
+        /*setTimeout(() => {
+             document.querySelectorAll('.container').forEach(el => el.style.display = 'block'); // Or keep hidden
+        }, 1000);*/
+    }
+
+    function printAll() {
+        // Show all challan copies
+        document.querySelectorAll('.container').forEach(el => el.style.display = 'block');
+        
+        // Print
+        window.print();
     }
 </script>
 

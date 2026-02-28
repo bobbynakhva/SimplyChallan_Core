@@ -123,4 +123,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'trial_expiry' => env('TRIAL_EXPIRES_AT'),
+    'license_key' => env('APP_LICENSE_KEY'),
+
 ];

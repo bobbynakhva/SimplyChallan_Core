@@ -36,17 +36,15 @@ class UrCompanyController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'phone' => 'required|unique:users',
             'gstin'   => 'nullable|regex:/^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}[Z]{1}[0-9A-Z]{1}$/',
-            'address' => 'nullable|string|max:20'
+            'address' => 'nullable|string|max:100'
         ]);
 
         $user = User::create([
             'role' => "company",
             'name' => $request->name,
-            'email' => $request->email,
-            'phone' => $request->phone,
+            'email' => "company_" . time() . "_" . rand(1000, 9999) . "@system.local",
+            'phone' => "000000" . rand(1000, 9999),
             'gstin' => $request->gstin,
             'address' => $request->address,
             'password' => Hash::make("Company@123"),

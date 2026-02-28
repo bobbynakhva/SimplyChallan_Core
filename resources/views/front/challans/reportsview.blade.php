@@ -138,6 +138,26 @@
             </table>
         </div>
 
+        @php
+            $totalReturned = 0;
+            $totalScrap = 0;
+            $totalUnrecoverable = 0;
+            $despatchDates = [];
+            
+            foreach($challan->items as $item) {
+                $totalReturned += $item->returns->sum('quantity_returned');
+                $totalScrap += $item->returns->sum('waste_scrap_returned');
+                $totalUnrecoverable += $item->returns->sum('waste_not_recoverable');
+                foreach($item->returns as $ret) {
+                    if($ret->despatch_date) $despatchDates[] = $ret->despatch_date;
+                }
+            }
+            
+            $lastDespatch = !empty($despatchDates) 
+                ? \Carbon\Carbon::parse(max($despatchDates))->format('d.m.Y') 
+                : '-';
+        @endphp
+
         <div class="common__body__section pb-4">
             <h4 class="pt-3 text-center">PART - II</h4>
             <table class="table table-bordered">
@@ -150,22 +170,22 @@
                     <tr>
                         <th>1.</th>
                         <th>Date of Despatch of Finished Goods</th>
-                        <td class="text-center"></td>
+                        <td class="text-center">{{ $lastDespatch }}</td>
                     </tr>
                     <tr>
                      <th>2.</th>
                         <th>Quantity Returned</th>
-                        <td class="text-center"></td>
+                        <td class="text-center">{{ number_format($totalReturned, 3) }}</td>
                     </tr>
                     <tr>
                      <th>3.</th>
                         <th>Waste Scrap Returned</th>
-                        <td class="text-center"></td>
+                        <td class="text-center">{{ number_format($totalScrap, 3) }}</td>
                     </tr>
                     <tr>
                      <th>4.</th>
                         <th>Waste & Scrap Not Recoverable</th>
-                        <td class="text-center"></td>
+                        <td class="text-center">{{ number_format($totalUnrecoverable, 3) }}</td>
                     </tr>
                 </tbody>
             </table>

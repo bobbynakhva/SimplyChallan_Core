@@ -122,7 +122,8 @@
          </div>
          <div class="footer__bottom d-flex">
             <p class="fz-18 pratext">
-               Copyright &copy;2025 <a href="index-2.html" class="base">Rechargio.</a> All Rights Reserved
+               Copyright &copy;2026 <a href="#" class="base">Simply Challan.</a> All Rights Reserved | 
+               <span class="badge bg-secondary">v{{ config('nativephp.version', '1.0.0') }}</span>
             </p>
             <ul class="footer__bottom__link">
                <li>

@@ -141,4 +141,42 @@ class InwardCompanyController extends Controller
         ]);
     }
 
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:csv,txt|max:2048',
+        ]);
+
+        $file = $request->file('file');
+        $csvData = file_get_contents($file);
+        $rows = array_map('str_getcsv', explode("\n", $csvData));
+        $header = array_shift($rows); // Assuming first row is header
+
+        // Basic mapping if header exists, otherwise assume order: Name, Phone, GST, Address
+        // To be safe, let's assume specific order or check header
+        // For simplicity in this v1: index 0=Name, 1=Phone, 2=GST, 3=Address
+
+        foreach ($rows as $row) {
+            if (count($row) < 1 || empty($row[0])) continue; // Skip empty rows
+
+            // Basic cleanup
+            $name = trim($row[0] ?? '');
+            $phone = trim($row[1] ?? '');
+            $gstin = trim($row[2] ?? '');
+            $address = trim($row[3] ?? '');
+
+            if (empty($name)) continue;
+
+            Company::create([
+                'user_id' => Session::get('company_id'),
+                'industry_name' => $name,
+                'industry_number' => $phone,
+                'industry_gstin' => $gstin,
+                'industry_address' => $address,
+            ]);
+        }
+
+        return redirect()->route('companies.index')->with('success', 'Companies imported successfully.');
+    }
+
 }

@@ -3,51 +3,125 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Flow Selection')</title>
+    <title>Select Flow - Simply Challan</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    
+    <!-- Modern Login Styles -->
+    <link rel="stylesheet" href="{{ asset('assets/css/modern-login.css') }}?v={{ time() }}">
 
-    <meta name="description" content="@yield('meta_description', 'Manage your delivery challans efficiently with our application.')">
-    <meta name="keywords" content="@yield('meta_keywords', 'delivery challan, challan management, invoice system, billing')">
-    <meta name="author" content="Your Company Name">
+    <style>
+        /* Specific overrides for Flow Selection */
+        .flow-options {
+            display: gap;
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            justify-content: center;
+        }
 
-    <link rel="canonical" href="{{ url()->current() }}">
+        .flow-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            border-radius: 16px;
+            border: 2px solid rgba(99, 102, 241, 0.1);
+            background: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+            min-width: 140px;
+        }
 
-    <meta property="og:title" content="@yield('og_title', 'Delivery Challan App')">
-    <meta property="og:description" content="@yield('og_description', 'A powerful tool to manage delivery challans efficiently.')">
-    <meta property="og:image" content="@yield('og_image', asset('assets/img/logo/favicon.png'))">
-    <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:type" content="website">
+        .flow-btn:hover {
+            transform: translateY(-5px);
+            background: #fff;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.15);
+            border-color: #6366f1;
+        }
 
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="@yield('twitter_title', 'Delivery Challan App')">
-    <meta name="twitter:description" content="@yield('twitter_description', 'Easily manage your delivery challans online.')">
-    <meta name="twitter:image" content="@yield('twitter_image', asset('assets/img/logo/favicon.png'))">
+        .flow-btn i {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: -webkit-linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-    <meta name="robots" content="@yield('robots', 'index, follow')">
+        .flow-btn span {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
 
-    <link rel="icon" type="image/png" href="{{ asset('assets/img/logo/favicon.png') }}">
-    <script src="https://cdn.tailwindcss.com"></script>
+        .company-info {
+            text-align: center;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            margin-top: 1rem;
+        }
+
+        .company-badge {
+            display: inline-block;
+            background: rgba(99, 102, 241, 0.1);
+            color: #4f46e5;
+            padding: 0.5rem 1rem;
+            border-radius: 99px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin: 0.25rem;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-    <div class="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md">
-        <h2 class="text-2xl font-bold text-center mb-6">Select Inward or Outward</h2>
-        <form method="POST" action="{{ route('flow-tab.select') }}">
-            @csrf
-            <div class="flex justify-around mb-6">
-                <button type="submit" name="flow_type" value="inward"
-                    class="px-6 py-3 rounded-lg text-white bg-blue-600 hover:bg-blue-700 font-semibold">
-                    Inward Panel
-                </button>
-                <button type="submit" name="flow_type" value="outward"
-                    class="px-6 py-3 rounded-lg text-white bg-gray-600 hover:bg-gray-700 font-semibold">
-                    Outward Panel
-                </button>
-            </div>
-        </form>
+<body>
 
-        <div class="text-sm text-gray-500 text-center">
-            Company : {{ $company->name }} |
-            Financial Year : {{ $financial_year->year }}
+    <section id="modern-login-section">
+        <div class="ml-card">
+            <div class="ml-header">
+                <h4 class="ml-title">Select Flow</h4>
+                <p class="ml-subtitle">Choose Inward or Outward to proceed</p>
+            </div>
+            
+            <form method="POST" action="{{ route('flow-tab.select') }}">
+                @csrf
+                
+                <div class="flow-options">
+                    <button type="submit" name="flow_type" value="inward" class="flow-btn">
+                        <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                        <span>Inward</span>
+                    </button>
+                    
+                    <button type="submit" name="flow_type" value="outward" class="flow-btn">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Outward</span>
+                    </button>
+                </div>
+
+            </form>
+
+            <div class="company-info">
+                @if(isset($company))
+                    <div class="company-badge">
+                        <i class="fa-regular fa-building"></i> {{ $company->name }}
+                    </div>
+                @endif
+                
+                @if(isset($financial_year))
+                    <div class="company-badge">
+                        <i class="fa-regular fa-calendar"></i> {{ $financial_year->year }}
+                    </div>
+                @endif
+            </div>
         </div>
-    </div>
+    </section>
+
 </body>
 </html>

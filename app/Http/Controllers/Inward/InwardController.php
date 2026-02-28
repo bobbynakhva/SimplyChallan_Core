@@ -245,9 +245,11 @@ class InwardController extends Controller
 
 
     public function reports()
-    { /*, 'items.returns'*/
-        $challans = InwardChallan::with(['inwarditems','inwarditems.goodsStocks'])->where('user_id', Session::get('company_id'))->get();
-        return view('front.inward.reports', compact('challans'));
+    {
+        $companyId = Session::get('company_id');
+        $challans = InwardChallan::with(['inwarditems', 'inwarditems.goodsStocks'])->where('user_id', $companyId)->get();
+        $companies = Company::where('user_id', $companyId)->get(); // For Filter
+        return view('front.inward.reports', compact('challans', 'companies'));
     }
 
     public function challanItems($id)
@@ -410,33 +412,124 @@ class InwardController extends Controller
 
     public function singleprintChallan($id)
     {
-        $challan = InwardChallan::with([
+        $goodsStock = GoodsStock::with('inwardChallanItem.inwarditems')->findOrFail($id);
+        $challanItem = $goodsStock->inwardChallanItem;
+        $challan = $challanItem->inwarditems;
+
+        $challan->load([
             'company',
             'user',
-            'inwarditems.latestGoodsStock',  // Important: latestGoodsStock instead of goodsStocks
+            'inwarditems.latestGoodsStock',
+            'inwarditems.goodsStocks',
             'financialYear',
             'purpose',
             'preparedItems'
-        ])
-        ->whereHas('inwarditems.latestGoodsStock', function ($query) use ($id) {
-            $query->where('id', $id);
-        })
-        ->firstOrFail();
+        ]);
 
-        $totalReturnedQty = 0;
-
-        foreach ($challan->inwarditems as $item) {
-            $totalReturnedQty += $item->goodsStocks->sum('kgs'); // ✅ Correct: per item
-        }
+        // Use the historical balance stored at the time of this dispatch
+        $remainingStock = $goodsStock->remaining_qty;
 
         $totalSentQty = $challan->inwarditems->sum('qty');
-
-        $remainingStock = $totalSentQty - $totalReturnedQty;
         
-        $challan_no = $challan->inwarditems->first()->latestGoodsStock->challan_number;
-        return view('front.inward.singleprint', compact('challan','totalSentQty', 'remainingStock','challan_no'));
+        $challan_no = $goodsStock->challan_number;
+        return view('front.inward.singleprint', compact('challan','totalSentQty', 'remainingStock','challan_no','goodsStock'));
+    }
+
+    public function exportInwardReport($id)
+    {
+        $challan = InwardChallan::with([
+            'company',
+            'user',
+            'inwarditems.goodsStocks',
+            'financialYear',
+            'purpose',
+            'preparedItems'
+        ])->findOrFail($id);
+
+        $totalReturnedQty = 0;
+        foreach ($challan->inwarditems as $item) {
+            $totalReturnedQty += $item->goodsStocks->sum('kgs');
+        }
+        $totalSentQty = $challan->inwarditems->sum('qty');
+        $remainingStock = $totalSentQty - $totalReturnedQty;
+
+        $filename = "Inward_Report_" . $challan->main_challan_number . ".xls";
+
+        return response(view('front.inward.export_return_report', compact(
+            'challan', 
+            'totalReturnedQty',
+            'totalSentQty',
+            'remainingStock'
+        )))
+        ->header('Content-Type', 'application/vnd.ms-excel')
+        ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
 
+    public function exportReports(Request $request)
+    {
+        $companyId = Session::get('company_id');
+
+        // Filters
+        $filterCompany = $request->input('company_id');
+        $selectedIds = $request->input('selected_ids'); // Comma separated IDs
+
+        $query = InwardChallan::with(['inwarditems', 'inwarditems.goodsStocks', 'company', 'purpose'])
+                    ->where('user_id', $companyId);
+
+        if ($filterCompany) {
+            $query->where('company_id', $filterCompany);
+        }
+
+        if ($selectedIds) {
+            $ids = explode(',', $selectedIds);
+            $query->whereIn('id', $ids);
+        }
+
+        $challans = $query->get();
+
+        // Headers for CSV
+        $filename = "inward_challan_reports_" . date('Y-m-d_H-i') . ".csv";
+        $headers = array(
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        );
+
+        $columns = array('Challan No', 'Client Company', 'Main Challan No', 'Item Name', 'Total Qty', 'Remaining Qty', 'Returned Pieces', 'Despatch Date', 'Status');
+
+        $callback = function() use($challans, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($challans as $challan) {
+                foreach ($challan->inwarditems as $item) {
+                     $totalReturned = max(0, $item->goodsStocks->sum('kgs'));
+                     $returnedPieces = max(0, $item->goodsStocks->sum('pcs'));
+                     $remainingQty = max(0, $item->qty - $totalReturned);
+                     $remainingpiece = max(0, $item->piece_no - $returnedPieces); 
+                     $status = ($remainingQty <= 0) ? 'Completed' : 'Pending';
+                     $despatchDate = optional($item->goodsStocks->last())->created_at ? $item->goodsStocks->last()->created_at->format('Y-m-d') : '-'; 
+
+                    fputcsv($file, array(
+                        $challan->id,
+                        $challan->industry_name,
+                        $challan->main_challan_number,
+                        $item->item_name,
+                        number_format($item->qty, 3),
+                        number_format($remainingQty, 3),
+                        $returnedPieces, // Changed from total pieces to returned pieces
+                        $despatchDate,
+                        $status
+                    ));
+                }
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 }
 

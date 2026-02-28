@@ -29,7 +29,8 @@ class HomeController extends Controller
     public function index()
     {
         if (!Session::has('company_id') || !Session::has('financial_year')) {
-            $companies = User::all();
+            // Fetch companies associated with logged in user
+            $companies = User::where('parent_id', \Illuminate\Support\Facades\Auth::id())->get();
             $financial_years = FinancialYear::all();
             return view('front.index',compact('companies','financial_years'));
         }else{

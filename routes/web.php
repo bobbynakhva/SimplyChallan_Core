@@ -14,6 +14,7 @@ use App\Http\Controllers\ReturnItemController;
 use App\Http\Controllers\PurposeController;
 use App\Http\Controllers\UrCompanyController;
 use App\Http\Controllers\FlowTabController;
+use App\Http\Controllers\LicenseController;
 
 /*Route::get('/', function () {
     return view('front/index');
@@ -25,7 +26,9 @@ Route::get('/register', [RegisterController::class, 'showRegister'])->name('regi
 Route::post('/registerdata', [RegisterController::class, 'registerdata'])->name('registerdata');
 Route::get('/login', [LoginController::class, 'showOtpLogin'])->name('login');
 Route::post('/loginpost', [LoginController::class, 'loginpost'])->name('loginpost');
+Route::get('/loginpost', function() { return redirect()->route('login'); });
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
+Route::post('/activate-license', [LicenseController::class, 'activate'])->name('license.activate');
 
 Route::middleware('auth')->group(function () {
     Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
@@ -35,6 +38,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/urcompanies', [UrCompanyController::class, 'index'])->name('urcompanies.index'); // List companies
     Route::post('/urcompanies/store', [UrCompanyController::class, 'store'])->name('urcompanies.store'); // Store new company
     Route::resource('urcompanies', UrCompanyController::class);
+
+    // License Management
+    Route::get('/admin/license', [LicenseController::class, 'index'])->name('admin.license.index');
+    Route::post('/admin/license/reset', [LicenseController::class, 'resetBinding'])->name('admin.license.reset');
 });
 
 
@@ -56,6 +63,7 @@ Route::middleware([EnsureCompanySelected::class])->group(function () {
 });
 
 Route::middleware([EnsureCompanySelected::class])->prefix('inward')->group(function () {
+        Route::post('/companies/import', [InwardCompanyController::class, 'import'])->name('companies.import');
         Route::resource('companies', InwardCompanyController::class);
         Route::get('/companies/edit/{id}', [InwardCompanyController::class, 'edit'])->name('inward.companies.edit');
     Route::get('/challan', [InwardController::class, 'index'])->name('inward.dashboard');
@@ -66,11 +74,13 @@ Route::middleware([EnsureCompanySelected::class])->prefix('inward')->group(funct
     Route::get('/challan/view/{id}', [InwardController::class, 'show'])->name('inward.challan.view');
     Route::delete('/challans/{id}/soft-delete', [InwardController::class, 'softDelete'])->name('inward.challan.softDelete');
     Route::get('/challan/reports', [InwardController::class, 'reports'])->name('inward.challan.reports');
+    Route::get('/challan/export', [InwardController::class, 'exportReports'])->name('inward.challan.export');
     Route::get('/challan/items/{id}', [InwardController::class, 'challanItems'])->name('inward.challan.items');
     Route::post('/return-items/store', [InwardController::class, 'ReturnPraparedItem'])->name('inward.return-items.store');
     Route::get('/challan/reportsview/{id}', [InwardController::class, 'reportsshow'])->name('inward.challan.reportsview');
     Route::get('/challan/print/{id}', [InwardController::class, 'printChallan'])->name('inward.challan.print');
     Route::get('/challan/singleprint/{id}', [InwardController::class, 'singleprintChallan'])->name('inward.challan.invoice');
+    Route::get('/inward-challan/export-report/{id}', [InwardController::class, 'exportInwardReport'])->name('inward.challan.export_report');
     Route::get('/inward-challan/download/{id}', [InwardController::class, 'downloadPdf'])->name('inward.challan.download');
     Route::get('/purposes', [InwardPurposeController::class, 'index'])->name('inward.purposes.index');
     Route::get('/purposes/create', [InwardPurposeController::class, 'create'])->name('inward.purposes.create');
@@ -96,11 +106,15 @@ Route::middleware([EnsureCompanySelected::class])->prefix('outward')->group(func
     Route::get('/challan/inward', [ChallanController::class, 'inward'])->name('challan.inward');
     Route::get('/challan/reports', [ChallanController::class, 'reports'])->name('challan.reports');
     Route::get('/challan/reportsview/{id}', [ChallanController::class, 'reportsshow'])->name('challan.reportsview');
+    Route::get('/challan/export', [ChallanController::class, 'exportReports'])->name('challan.export');
     Route::get('/challan/print/{id}', [ChallanController::class, 'printChallan'])->name('challan.print');
     Route::get('/challan/items/{id}', [ChallanController::class, 'challanItems'])->name('challan.items');
     Route::post('/return-items/store', [ReturnItemController::class, 'store'])->name('return-items.store');
     Route::get('/challans/{id}/report', [ChallanController::class, 'showReport'])->name('challan.returnreportsview');
+    Route::get('/challans/{id}/export-report', [ChallanController::class, 'exportReturnReport'])->name('challan.export_return_report');
     Route::get('/challan/download/{id}', [ChallanController::class, 'downloadPdf'])->name('challan.download');
+    Route::post('/challan/import', [ChallanController::class, 'bulkImport'])->name('challan.bulkImport');
+    Route::get('/challan/sample-download', [ChallanController::class, 'downloadSample'])->name('challan.sampleDownload');
     Route::resource('purposes', PurposeController::class);
 
 });

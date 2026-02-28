@@ -101,9 +101,8 @@
                     @yield('content')
                 <!-- ==================== Footer Start Here ==================== -->
             
-                @if (Session::has('company_id') && Session::has('financial_year'))
-                    @include('layout.footer')
-                @endif
+                <!-- ==================== Footer Start Here ==================== -->
+                @include('layout-inward.footer')
                 <!-- ==================== Footer End Here ==================== -->
         <script data-cfasync="false" src="{{ asset('cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js') }}"></script>
         <script src="{{ asset('assets/js/jquery-3.6.0.min.js') }}"></script>

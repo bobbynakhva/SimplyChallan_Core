@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth; 
 use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\ChallanImport;
 
 class ChallanController extends Controller
 {
@@ -272,12 +274,14 @@ class ChallanController extends Controller
     public function reports()
     {
        // $challans = Challan::with('items')->get();
-        $challans = Challan::with(['items', 'items.returns'])->where('user_id', Session::get('company_id'))->get();
-        return view('front.challans.reports', compact('challans'));
+        $companyId = Session::get('company_id');
+        $challans = Challan::with(['items', 'items.returns'])->where('user_id', $companyId)->get();
+        $companies = Company::where('user_id', $companyId)->get(); // For Filter
+        return view('front.challans.reports', compact('challans', 'companies'));
     }
 
     public function reportsshow($id){
-        $challan = Challan::with(['company','items','financialYear','purpose'])->findOrFail($id);
+        $challan = Challan::with(['company','items.returns','financialYear','purpose'])->findOrFail($id);
         return view('front.challans.reportsview', compact('challan'));
     }
 
@@ -307,6 +311,30 @@ class ChallanController extends Controller
             'totalWasteNotRecoverable', 
             'remainingStock'
         ));
+    }
+
+    public function exportReturnReport($id)
+    {
+        $challan = Challan::with(['items', 'returns'])->findOrFail($id);
+        
+        // Calculate totals for consistency (logic same as showReport)
+        $totalReturnedQty = $challan->returns->sum('quantity_returned');
+        $totalWasteScrap = $challan->returns->sum('waste_scrap_returned');
+        $totalWasteNotRecoverable = $challan->returns->sum('waste_not_recoverable');
+        $totalSentQty = $challan->items->sum('total_qty');
+        $remainingStock = $totalSentQty - ($totalReturnedQty + $totalWasteScrap + $totalWasteNotRecoverable);
+
+        $filename = "Return_Report_" . $challan->challan_number . ".xls";
+
+        return response(view('front.challans.export_return_report', compact(
+            'challan', 
+            'totalReturnedQty', 
+            'totalWasteScrap', 
+            'totalWasteNotRecoverable', 
+            'remainingStock'
+        )))
+        ->header('Content-Type', 'application/vnd.ms-excel')
+        ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
     public function challanItems($id)
@@ -535,7 +563,7 @@ class ChallanController extends Controller
                   <div><strong>FOR, <span style="text-transform: uppercase;">&nbsp;' . strtoupper($challan->user->name) . '</span></strong></div>
                   <div style="color: red; font-weight: bold;"></div>
                   <br><br>
-                  <div><strong>ATHO. SIGN:</strong></div>
+                  <div><strong>AUTH. SIGN:</strong></div>
                </td>
             </tr>
          </table>
@@ -586,6 +614,128 @@ class ChallanController extends Controller
 
     return $pdf->download("challan_{$challan->id}.pdf");
 }
+
+    public function exportReports(Request $request)
+    {
+        $companyId = Session::get('company_id');
+        
+        // Filters
+        $filterCompany = $request->input('company_id');
+        $selectedIds = $request->input('selected_ids'); // Comma separated IDs
+
+        $query = Challan::with(['items', 'items.returns', 'company', 'purpose'])
+                    ->where('user_id', $companyId);
+
+        if ($filterCompany) {
+            $query->where('company_id', $filterCompany);
+        }
+
+        if ($selectedIds) {
+            $ids = explode(',', $selectedIds);
+            $query->whereIn('id', $ids);
+        }
+
+        $challans = $query->get();
+
+        // Headers for CSV
+        $filename = "challan_reports_" . date('Y-m-d_H-i') . ".csv";
+        $headers = array(
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$filename",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        );
+
+        $columns = array('Challan No', 'Client Name', 'Date', 'Purpose', 'Item Name', 'Sent Qty', 'Returned Qty', 'Balance Qty', 'Pieces', 'Despatch Date', 'Status');
+
+        $callback = function() use($challans, $columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+
+            foreach ($challans as $challan) {
+                foreach ($challan->items as $item) {
+                     $actualReturned = $item->returns->sum('quantity_returned');
+                     $scrapReturned = $item->returns->sum('waste_scrap_returned');
+                     $unrecoverable = $item->returns->sum('waste_not_recoverable');
+                     
+                     $totalAccountedFor = $actualReturned + $scrapReturned + $unrecoverable;
+                     $remainingQty = max(0, $item->total_qty - $totalAccountedFor);
+                     
+                     $remainingpiece = max(0, $item->returns->sum('piece_returned'));
+                     $status = ($remainingQty <= 0.001) ? 'Completed' : 'Pending';
+                     $despatchDate = optional($item->returns->first())->despatch_date ?? '-';
+
+                    fputcsv($file, array(
+                        $challan->challan_number,
+                        $challan->industry_name,
+                        $challan->date,
+                        $challan->purpose->name ?? '-',
+                        $item->item_name,
+                        number_format($item->total_qty, 3),
+                        number_format($totalAccountedFor, 3),
+                        number_format($remainingQty, 3),
+                        $remainingpiece,
+                        $despatchDate,
+                        $status
+                    ));
+                }
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function bulkImport(Request $request)
+    {
+        $request->validate([
+            'excel_file' => 'required|mimes:xlsx,xls,csv|max:5120',
+        ]);
+
+        try {
+            Excel::import(new ChallanImport, $request->file('excel_file'));
+            return redirect()->back()->with('success', 'Challans imported successfully!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Error during import: ' . $e->getMessage());
+        }
+    }
+
+    public function downloadSample()
+    {
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=challan_import_sample.csv",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $columns = [
+            'challan_ref', 'client_gstin', 'item_name', 'qty', 'piece_no', 'price_per_kg', 
+            'hsn_code', 'vehicle_no', 'no_of_packages', 'date', 'purpose'
+        ];
+
+        $callback = function() use($columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            
+            // Sample Data (Simplified)
+            // Note: date defaults to today, purpose defaults to first, tax defaults to 9+9%
+            fputcsv($file, [
+                'B101', '24AAAAA0000A1Z5', 'Brass Item A', '25', '100', '550', 
+                '7403', 'GJ-10-XY-1234', '10', '', ''
+            ]);
+            fputcsv($file, [
+                'B101', '24AAAAA0000A1Z5', 'Brass Item B', '15', '50', '600', 
+                '7403', 'GJ-10-XY-1234', '10', '', ''
+            ]);
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
 
 }
 
