@@ -59,10 +59,24 @@ return [
      * final app before it is bundled for production.
      * You may use glob / wildcard patterns here.
      */
-    'cleanup_exclude_files' => [
+     'cleanup_exclude_files' => [
+        '.git',
+        '.github',
+        'tests',
+        'node_modules',
         'content',
         'storage/app/framework/{sessions,testing,cache}',
-        'storage/logs/laravel.log',
+        'storage/logs/*.log',
+        '*.zip',
+        '*.xml',
+        '*.lock',
+        '*.log',
+        '.editorconfig',
+        '.gitattributes',
+        '.phpunit.result.cache',
+        '*.sublime-project',
+        '*.sublime-workspace',
+        '.vscode',
     ],
 
     /**

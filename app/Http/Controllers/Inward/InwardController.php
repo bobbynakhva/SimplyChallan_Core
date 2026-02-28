@@ -15,8 +15,10 @@ use App\Models\User;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Auth; 
+use Auth; 
 use Barryvdh\DomPDF\Facade\Pdf;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Imports\InwardChallanImport;
 
 class InwardController extends Controller
 {
@@ -526,6 +528,53 @@ class InwardController extends Controller
                     ));
                 }
             }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    public function bulkImport(Request $request)
+    {
+        $request->validate([
+            'excel_file' => 'required|mimes:xlsx,xls,csv|max:5120',
+        ]);
+
+        try {
+            Excel::import(new InwardChallanImport, $request->file('excel_file'));
+            return redirect()->back()->with('success', 'Inward Challans imported successfully!');
+        } catch (\Exception $e) {
+            \Log::error('Inward Import Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Error during import: ' . $e->getMessage());
+        }
+    }
+
+    public function downloadSample()
+    {
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=inward_challan_import_sample.csv",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $columns = [
+            'main_challan_number', 'client_gstin', 'item_name', 'qty', 'piece_no', 'date', 'purpose'
+        ];
+
+        $callback = function() use($columns) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, $columns);
+            
+            // Sample Data
+            fputcsv($file, [
+                'INW-545454', '24AAAAA0000A1Z5', 'Brass Rods', '100', '10', '2025-12-10', 'Machining'
+            ]);
+            fputcsv($file, [
+                'INW-545454', '24AAAAA0000A1Z5', 'Copper Plate', '50', '5', '2025-12-10', 'Machining'
+            ]);
+            
             fclose($file);
         };
 

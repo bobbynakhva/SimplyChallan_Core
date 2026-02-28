@@ -82,6 +82,8 @@ Route::middleware([EnsureCompanySelected::class])->prefix('inward')->group(funct
     Route::get('/challan/singleprint/{id}', [InwardController::class, 'singleprintChallan'])->name('inward.challan.invoice');
     Route::get('/inward-challan/export-report/{id}', [InwardController::class, 'exportInwardReport'])->name('inward.challan.export_report');
     Route::get('/inward-challan/download/{id}', [InwardController::class, 'downloadPdf'])->name('inward.challan.download');
+    Route::post('/challan/import', [InwardController::class, 'bulkImport'])->name('inward.challan.bulkImport');
+    Route::get('/challan/sample-download', [InwardController::class, 'downloadSample'])->name('inward.challan.sampleDownload');
     Route::get('/purposes', [InwardPurposeController::class, 'index'])->name('inward.purposes.index');
     Route::get('/purposes/create', [InwardPurposeController::class, 'create'])->name('inward.purposes.create');
     Route::post('/purposes/store', [InwardPurposeController::class, 'store'])->name('inward.purposes.store');

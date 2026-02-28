@@ -60,9 +60,8 @@ class ChallanImport implements ToCollection, WithHeadingRow
                 $purpose = Purpose::first(); 
             }
 
-            // 3. Prepare Header Data
-            // Date defaults to today if not in excel
-            $date = !empty($first['date']) ? $this->transformDate($first['date']) : now();
+            // 3. Prepare Header Data (Strict Date Validation)
+            $date = $this->transformDate($first['date'] ?? null);
             $vehicleNo = $first['vehicle_no'] ?? '';
             $noOfPackages = $first['no_of_packages'] ?? '';
             
@@ -128,10 +127,31 @@ class ChallanImport implements ToCollection, WithHeadingRow
 
     private function transformDate($value)
     {
+        if (empty($value)) {
+            throw new \Exception("Challan Date cannot be empty. Date is important for your records.");
+        }
+
+        if ($value instanceof \DateTimeInterface) {
+            return Carbon::instance($value);
+        }
+
+        if (is_numeric($value)) {
+            try {
+                return Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value));
+            } catch (\Throwable $e) {
+                // Ignore and fall back to parse
+            }
+        }
+        
         try {
-            return Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($value));
-        } catch (\ErrorException $e) {
             return Carbon::parse($value);
+        } catch (\Throwable $e) {
+            try {
+                $cleaned = str_replace(['/', '.'], '-', $value);
+                return Carbon::parse($cleaned);
+            } catch (\Throwable $e2) {
+                throw new \Exception("Challan Date '{$value}' is not readable. Please use YYYY-MM-DD format.");
+            }
         }
     }
 }

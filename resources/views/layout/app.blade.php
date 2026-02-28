@@ -130,6 +130,59 @@
         <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
         <script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
 
+<!-- Global Keyboard Shortcuts -->
+<script>
+document.addEventListener('keydown', function(e) {
+    // Alt + N: Create New
+    if (e.altKey && e.key.toLowerCase() === 'n') {
+        const createBtn = document.querySelector('.btn-create-premium, a[href*="create"]');
+        if (createBtn) createBtn.click();
+    }
+    
+    // Alt + I: Bulk Import
+    if (e.altKey && e.key.toLowerCase() === 'i') {
+        const importBtn = document.querySelector('.btn-bulk-import, [data-bs-target="#importExcelModal"]');
+        if (importBtn) importBtn.click();
+    }
+
+    // Alt + H: Home Dashboard
+    if (e.altKey && e.key.toLowerCase() === 'h') {
+        window.location.href = "{{ route('flow-tab') }}";
+    }
+
+    // Alt + B: Back
+    if (e.altKey && e.key.toLowerCase() === 'b') {
+        const backBtn = document.querySelector('.btn-back, .btn-light[href], a[href*="dashboard"]');
+        if (backBtn) backBtn.click();
+        else window.history.back();
+    }
+
+    // Alt + S: Save/Submit Form
+    if (e.altKey && e.key.toLowerCase() === 's') {
+        const submitBtn = document.querySelector('button[type="submit"]');
+        if (submitBtn) {
+            e.preventDefault();
+            submitBtn.click();
+        }
+    }
+
+    // Forward Slash (/): Focus Search
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+        const searchInput = document.querySelector('.dataTables_filter input, input[type="search"]');
+        if (searchInput) {
+            e.preventDefault();
+            searchInput.focus();
+        }
+    }
+
+    // Escape (Esc): Close Modals
+    if (e.key === 'Escape') {
+        const closeBtn = document.querySelector('.btn-close, [data-bs-dismiss="modal"]');
+        if (closeBtn) closeBtn.click();
+    }
+});
+</script>
+
 @stack('scripts')
 
 </body>

@@ -1,6 +1,6 @@
 @push('styles')
 <style>
-    /* Modern Light Sidebar matching Website Theme */
+    /* Modern Premium Sidebar - Titan Noir Theme */
     .side__sticky {
         position: sticky;
         top: 100px !important;
@@ -8,15 +8,15 @@
     }
 
     ul.common__sidebar__wrapper {
-        background: #ffffff; /* Clean White Background */
-        border-radius: 12px;
-        padding: 16px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 24px 16px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
         min-height: calc(100vh - 120px);
         display: flex;
         flex-direction: column;
-        gap: 8px;
-        border: 1px solid #e2e8f0;
+        gap: 12px;
+        border: 1px solid #f1f5f9;
         margin-top: 20px;
     }
 
@@ -29,44 +29,38 @@
     .sidebar-link {
         display: flex;
         align-items: center;
-        gap: 12px;
-        padding: 12px 16px;
-        color: #64748b; /* Slate 500 */
+        gap: 14px;
+        padding: 14px 20px;
+        color: #64748b;
         text-decoration: none;
-        font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif !important;
-        font-weight: 500;
-        font-size: 0.9rem;
-        border-radius: 8px; /* Slightly tighter radius */
-        transition: all 0.2s ease;
-        letter-spacing: 0.01em;
-        border: 1px solid transparent;
-        text-transform: uppercase; /* Matching the screenshot's uppercase style */
-        font-size: 0.85rem;
+        font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
+        font-weight: 600;
+        font-size: 0.8rem;
+        border-radius: 12px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
     }
 
     /* Hover State */
     .sidebar-link:hover {
-        background-color: #f1f5f9;
+        background: #f8fafc;
         color: #0f172a;
-        transform: translateX(4px);
+        transform: translateX(8px);
     }
 
-    /* Active State: Bold Black */
+    /* Active State: Vibrant Indigo Gradient */
     .sidebar-link.active {
-        background-color: #000000 !important; /* Pure Black Active */
+        background: linear-gradient(135deg, #0f172a 0%, #334155 100%) !important;
         color: #ffffff !important;
-        font-weight: 600;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 10px 15px -3px rgba(15, 23, 42, 0.2);
     }
 
     .sidebar-link i {
-        font-size: 1.1rem;
-        width: 24px;
-        text-align: center;
-        transition: transform 0.2s ease;
+        font-size: 1.25rem;
+        transition: transform 0.3s ease;
     }
 
-    /* Icon Animation */
     .sidebar-link:hover i,
     .sidebar-link.active i {
         transform: scale(1.1);
