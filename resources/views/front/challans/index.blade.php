@@ -4,11 +4,11 @@
 
 @push('styles')
 <style>
-    /* === PROFESSIONAL THEME: GOLD & WHITE === */
+    /* === MODERN EXECUTIVE LIGHT THEME === */
     body, .page-wrapper {
-        background-color: #f7f9fc !important;
+        background-color: #f8fafc !important;
         font-family: 'Inter', system-ui, -apple-system, sans-serif !important;
-        color: #1e293b;
+        color: #0f172a;
     }
 
     /* GLOBAL FOCUS RESET */
@@ -17,23 +17,23 @@
         box-shadow: none !important;
     }
 
-    /* === SIDEBAR (Matching Inward) === */
+    /* === SIDEBAR REFINEMENT === */
     ul.common__sidebar__wrapper {
         background-color: #ffffff !important;
-        border-radius: 12px;
-        padding: 20px 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-        min-height: calc(100vh - 100px);
+        border-radius: 16px;
+        padding: 24px 14px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+        min-height: calc(100vh - 120px);
         display: flex;
         flex-direction: column;
-        gap: 8px;
-        border: 1px solid #f1f5f9;
-        margin-top: 50px; /* Safety margin */
+        gap: 10px;
+        border: 1px solid #e2e8f0;
+        margin-top: 30px;
     }
     
     .side__sticky {
         position: sticky;
-        top: 110px !important;
+        top: 100px !important;
         z-index: 99;
     }
 
@@ -47,40 +47,41 @@
         display: flex;
         align-items: center;
         gap: 12px;
-        padding: 12px 16px;
+        padding: 12px 18px;
         color: #64748b;
         text-decoration: none;
-        font-weight: 500;
-        font-size: 0.9rem;
-        border-radius: 8px;
-        transition: all 0.2s ease;
+        font-weight: 600;
+        font-size: 0.85rem;
+        border-radius: 10px;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        letter-spacing: 0.02em;
     }
 
     .sidebar-link:hover {
-        background-color: #f8fafc;
-        color: #334155;
+        background-color: #f1f5f9;
+        color: #0f172a;
         transform: translateX(4px);
     }
 
     .sidebar-link.active {
-        background-color: #f59e0b !important;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
         color: #ffffff !important;
-        box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.25);
-        font-weight: 600;
+        box-shadow: 0 8px 16px -4px rgba(245, 158, 11, 0.35);
+        font-weight: 700;
     }
     
     .sidebar-link i {
-        font-size: 1.1rem;
+        font-size: 1.15rem;
         width: 24px;
         text-align: center;
     }
 
-    /* === MAIN CARD === */
+    /* === MAIN CARD CONTAINER === */
     .challan-card {
         background-color: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+        padding: 32px;
         margin-bottom: 30px;
         border: 1px solid #e2e8f0;
     }
@@ -90,137 +91,230 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
+        margin-bottom: 24px;
         padding-bottom: 20px;
-        border-bottom: 1px solid #e2e8f0;
+        border-bottom: 1px solid #f1f5f9;
     }
     .page-title {
-        font-size: 1.5rem;
+        font-size: 1.6rem;
         font-weight: 800;
         color: #0f172a;
         margin: 0;
-        letter-spacing: -0.025em;
+        letter-spacing: -0.03em;
+    }
+    .page-subtitle {
+        color: #64748b;
+        font-size: 0.875rem;
+        margin-top: 4px;
     }
 
-    /* Add Button */
+    /* Action Buttons */
     .btn-gold {
-        background-color: #f59e0b;
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
         color: #ffffff;
         border: none;
-        padding: 10px 24px;
-        border-radius: 6px; /* Pill-like but slightly punchier */
+        padding: 10px 22px;
+        border-radius: 10px;
         font-weight: 700;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        font-size: 0.85rem;
-        transition: all 0.2s;
+        letter-spacing: 0.04em;
+        font-size: 0.8rem;
+        transition: all 0.25s ease;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 8px;
-        box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2);
+        box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
     }
     .btn-gold:hover {
-        background-color: #d97706;
+        background: linear-gradient(135deg, #d97706 0%, #b45309 100%);
         color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(245, 158, 11, 0.45);
+    }
+
+    .btn-bulk-import-outline {
+        border: 1.5px solid #cbd5e1;
+        color: #475569;
+        background-color: #ffffff;
+        border-radius: 10px;
+        font-weight: 700;
+        padding: 9px 20px;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.04em;
+        transition: all 0.2s ease;
+        margin-right: 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .btn-bulk-import-outline:hover {
+        background-color: #f8fafc;
+        border-color: #94a3b8;
+        color: #0f172a;
         transform: translateY(-1px);
-        box-shadow: 0 6px 12px -2px rgba(245, 158, 11, 0.3);
+    }
+
+    /* Metric Summary Bar */
+    .summary-metrics-bar {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 24px;
+    }
+    .metric-chip {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex: 1;
+    }
+    .metric-icon-box {
+        width: 42px;
+        height: 42px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+    .metric-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #64748b;
+        letter-spacing: 0.04em;
+    }
+    .metric-value {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.2;
     }
 
     /* Table Styling */
     .table-responsive {
-        border-radius: 8px;
+        border-radius: 12px;
         overflow: hidden;
+        border: 1px solid #e2e8f0;
     }
     #challanTable {
         width: 100% !important;
         border-collapse: collapse;
+        margin: 0 !important;
     }
     #challanTable thead th {
         background-color: #f8fafc;
-        color: #64748b;
+        color: #475569;
         font-weight: 700;
         font-size: 0.75rem;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        padding: 16px;
+        letter-spacing: 0.06em;
+        padding: 16px 18px;
         border-bottom: 2px solid #e2e8f0;
-        border-top: 1px solid #f1f5f9;
-        border-right: 1px solid #e2e8f0;
+        border-right: 1px solid #f1f5f9;
         white-space: nowrap;
     }
     #challanTable tbody td {
         background-color: #ffffff;
         color: #334155;
-        font-size: 0.9rem;
+        font-size: 0.875rem;
         font-weight: 500;
-        padding: 16px;
+        padding: 14px 18px;
         border-bottom: 1px solid #f1f5f9;
-        border-right: 1px solid #e2e8f0;
+        border-right: 1px solid #f8fafc;
         vertical-align: middle;
     }
     #challanTable thead th:last-child,
     #challanTable tbody td:last-child {
         border-right: none;
     }
+    #challanTable tbody tr {
+        transition: background-color 0.15s ease;
+    }
     #challanTable tbody tr:hover td {
-        background-color: #fdfdfd;
+        background-color: #f8fafc;
     }
 
-    /* Action Buttons */
-    .btn-action-group {
-        display: flex;
-        gap: 6px;
+    /* Badges */
+    .badge-purpose {
+        background-color: #eff6ff;
+        color: #2563eb;
+        border: 1px solid #bfdbfe;
+        font-weight: 600;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.78rem;
     }
-    .btn-icon {
+
+    /* Action Toolbar Buttons */
+    .btn-action-group {
+        display: inline-flex;
+        gap: 6px;
+        background: #f8fafc;
+        padding: 4px;
+        border-radius: 10px;
+        border: 1px solid #e2e8f0;
+    }
+    .btn-icon-pill {
         width: 32px;
         height: 32px;
-        border-radius: 6px;
+        border-radius: 8px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
         border: 1px solid transparent;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
         text-decoration: none;
         font-size: 0.9rem;
     }
-    .btn-icon:hover {
+    .btn-icon-pill:hover {
         transform: translateY(-2px);
     }
     
-    /* View (Sky) */
-    .btn-view { color: #0ea5e9; background: #e0f2fe; border-color: #bae6fd; }
-    .btn-view:hover { background: #0ea5e9; color: white; border-color: #0ea5e9; }
+    .btn-view-pill { color: #0284c7; background: #ffffff; border-color: #e0f2fe; }
+    .btn-view-pill:hover { background: #0284c7; color: #ffffff; border-color: #0284c7; }
 
-    /* Print (Indigo) */
-    .btn-print { color: #6366f1; background: #eef2ff; border-color: #c7d2fe; }
-    .btn-print:hover { background: #6366f1; color: white; border-color: #6366f1; }
+    .btn-print-pill { color: #4f46e5; background: #ffffff; border-color: #eef2ff; }
+    .btn-print-pill:hover { background: #4f46e5; color: #ffffff; border-color: #4f46e5; }
 
-    /* Edit (Gold) */
-    .btn-edit { color: #d97706; background: #fffbeb; border-color: #fcd34d; }
-    .btn-edit:hover { background: #f59e0b; color: white; border-color: #f59e0b; }
+    .btn-items-pill { color: #059669; background: #ffffff; border-color: #ecfdf5; }
+    .btn-items-pill:hover { background: #059669; color: #ffffff; border-color: #059669; }
 
-    /* Delete (Red) */
-    .btn-delete { color: #ef4444; background: #fef2f2; border-color: #fecaca; }
-    .btn-delete:hover { background: #ef4444; color: white; border-color: #ef4444; }
+    .btn-edit-pill { color: #d97706; background: #ffffff; border-color: #fffbeb; }
+    .btn-edit-pill:hover { background: #f59e0b; color: #ffffff; border-color: #f59e0b; }
 
-    /* DataTables Pagination Gold */
+    .btn-delete-pill { color: #e11d48; background: #ffffff; border-color: #ffe4e6; }
+    .btn-delete-pill:hover { background: #e11d48; color: #ffffff; border-color: #e11d48; }
+
+    /* DataTables Pagination & Controls */
+    .dataTables_wrapper .dataTables_filter input {
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 10px !important;
+        padding: 8px 16px !important;
+        font-size: 0.875rem !important;
+        transition: all 0.2s ease !important;
+    }
+    .dataTables_wrapper .dataTables_filter input:focus {
+        border-color: #f59e0b !important;
+        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15) !important;
+    }
     .dataTables_wrapper .dataTables_paginate .paginate_button.current {
         background: #f59e0b !important;
         border-color: #f59e0b !important;
         color: white !important;
-        border-radius: 6px;
-        font-weight: 700;
+        border-radius: 8px !important;
+        font-weight: 700 !important;
+        box-shadow: 0 4px 10px rgba(245, 158, 11, 0.25) !important;
     }
     .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
         background: #fef3c7 !important;
         border-color: #fcd34d !important;
         color: #92400e !important;
-    }
-    .dataTables_length select:focus, 
-    .dataTables_filter input:focus {
-        border-color: #f59e0b !important;
-        box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15) !important;
+        border-radius: 8px !important;
     }
 </style>
 @endpush
@@ -267,16 +361,18 @@
             <!-- MAIN CONTENT -->
             <div class="common__body">
                 <div class="container">
+                    
+                    <!-- Main Card -->
                     <div class="challan-card">
                         
                         <!-- Header -->
                         <div class="page-header">
                             <div>
                                 <h4 class="page-title">Manage Challans</h4>
-                                <span class="text-muted small">View, print, and manage your outward challans</span>
+                                <div class="page-subtitle">View, print, and manage your outward delivery challans</div>
                             </div>
-                            <div>
-                                <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#bulkImportModal" style="border-radius: 6px; font-weight: 600; padding: 10px 20px; text-transform: uppercase; font-size: 0.85rem; margin-right: 10px;">
+                            <div class="d-flex align-items-center">
+                                <button type="button" class="btn-bulk-import-outline" data-bs-toggle="modal" data-bs-target="#bulkImportModal">
                                     <i class="bi bi-file-earmark-arrow-up"></i> Bulk Import
                                 </button>
                                 <a href="{{ route('challan.create') }}" class="btn-gold">
@@ -285,32 +381,64 @@
                             </div>
                         </div>
 
+                        <!-- Summary Metrics Bar -->
+                        <div class="summary-metrics-bar">
+                            <div class="metric-chip">
+                                <div class="metric-icon-box" style="background:#e0f2fe; color:#0284c7;">
+                                    <i class="bi bi-files"></i>
+                                </div>
+                                <div>
+                                    <div class="metric-title">Total Outward Challans</div>
+                                    <div class="metric-value">{{ count($challans) }}</div>
+                                </div>
+                            </div>
+                            <div class="metric-chip">
+                                <div class="metric-icon-box" style="background:#ecfdf5; color:#059669;">
+                                    <i class="bi bi-currency-rupee"></i>
+                                </div>
+                                <div>
+                                    <div class="metric-title">Total Valuation</div>
+                                    <div class="metric-value">₹ {{ number_format($challans->sum('grand_total'), 2) }}</div>
+                                </div>
+                            </div>
+                            <div class="metric-chip">
+                                <div class="metric-icon-box" style="background:#fef3c7; color:#d97706;">
+                                    <i class="bi bi-calendar-check"></i>
+                                </div>
+                                <div>
+                                    <div class="metric-title">Active Period</div>
+                                    <div class="metric-value">{{ session('financial_year_name', 'Current FY') }}</div>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Bulk Import Modal -->
                         <div class="modal fade" id="bulkImportModal" tabindex="-1" aria-labelledby="bulkImportModalLabel" aria-hidden="true">
-                            <div class="modal-dialog">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="bulkImportModalLabel">Bulk Import Challans</h5>
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content" style="border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+                                    <div class="modal-header" style="border-bottom: 1px solid #f1f5f9; padding: 20px 24px;">
+                                        <h5 class="modal-title fw-bold" id="bulkImportModalLabel" style="color:#0f172a;">Bulk Import Challans</h5>
                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                     </div>
                                     <form action="{{ route('challan.bulkImport') }}" method="POST" enctype="multipart/form-data">
                                         @csrf
-                                        <div class="modal-body">
+                                        <div class="modal-body" style="padding: 24px;">
                                             <div class="mb-3">
-                                                <label for="excel_file" class="form-label">Choose Excel/CSV File</label>
-                                                <input type="file" class="form-control" name="excel_file" id="excel_file" required>
-                                                <div class="form-text">Supported formats: .xlsx, .xls, .csv</div>
+                                                <label for="excel_file" class="form-label fw-semibold" style="color:#334155;">Choose Excel or CSV File</label>
+                                                <input type="file" class="form-control" name="excel_file" id="excel_file" required style="border-radius: 10px; padding: 10px;">
+                                                <div class="form-text text-muted small mt-1">Supported file formats: .xlsx, .xls, .csv</div>
                                             </div>
-                                            <div class="alert alert-info">
-                                                <i class="bi bi-info-circle"></i> Download the sample template to see the required format.
+                                            <div class="alert alert-info border-0 rounded-3 d-flex align-items-center gap-2" style="background:#f0f9ff; color:#0369a1;">
+                                                <i class="bi bi-info-circle-fill fs-5"></i>
+                                                <span>Download the sample template below to ensure correct formatting.</span>
                                             </div>
-                                            <a href="{{ route('challan.sampleDownload') }}" class="btn btn-sm btn-link text-primary p-0">
-                                                <i class="bi bi-download"></i> Download Sample Template
+                                            <a href="{{ route('challan.sampleDownload') }}" class="btn btn-sm btn-link text-decoration-none fw-bold p-0" style="color:#0284c7;">
+                                                <i class="bi bi-download me-1"></i> Download Sample Excel Template
                                             </a>
                                         </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-gold" style="box-shadow: none;">Upload & Import</button>
+                                        <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 16px 24px;">
+                                            <button type="button" class="btn btn-light fw-semibold" data-bs-dismiss="modal" style="border-radius: 8px;">Close</button>
+                                            <button type="submit" class="btn-gold" style="box-shadow: none;">Upload & Import</button>
                                         </div>
                                     </form>
                                 </div>
@@ -319,7 +447,7 @@
 
                         <!-- Table -->
                         <div class="table-responsive">
-                            <table class="table" id="challanTable">
+                            <table class="table align-middle" id="challanTable">
                                 <thead>
                                     <tr>
                                         <th>Challan No</th>
@@ -332,33 +460,39 @@
                                 <tbody>
                                     @foreach($challans as $challan)
                                     <tr>
-                                        <td class="fw-bold">{{ $challan->challan_number }}</td>
-                                        <td>{{ date('d-m-Y', strtotime($challan->date)) }}</td>
-                                        <td><span class="badge bg-light text-dark border">{{ optional($challan->purpose)->name }}</span></td>
-                                        <td class="fw-bold text-dark">{{ $challan->grand_total }}</td>
+                                        <td class="fw-bold" style="color:#0f172a;">{{ $challan->challan_number }}</td>
+                                        <td style="color:#475569;">{{ date('d-m-Y', strtotime($challan->date)) }}</td>
+                                        <td>
+                                            <span class="badge-purpose">
+                                                {{ optional($challan->purpose)->name ?? 'General' }}
+                                            </span>
+                                        </td>
+                                        <td class="fw-bold" style="color:#0f172a;">
+                                            ₹ {{ number_format($challan->grand_total, 2) }}
+                                        </td>
                                         <td>
                                             <div class="btn-action-group">
                                                 <!-- View -->
-                                                <a href="{{ route('challan.view', $challan->id) }}" class="btn-icon btn-view" title="View">
+                                                <a href="{{ route('challan.view', $challan->id) }}" class="btn-icon-pill btn-view-pill" title="View Challan">
                                                     <i class="bi bi-eye"></i>
                                                 </a>
                                                 <!-- Print -->
-                                                <a href="{{ route('challan.print', $challan->id) }}" class="btn-icon btn-print" title="Print">
+                                                <a href="{{ route('challan.print', $challan->id) }}" class="btn-icon-pill btn-print-pill" title="Print Challan">
                                                     <i class="bi bi-printer"></i>
                                                 </a>
                                                 <!-- Item Details -->
-                                                <a href="{{ route('challan.items', $challan->id) }}" class="btn-icon btn-view" title="Items" style="color:#10b981; background:#ecfdf5; border-color:#a7f3d0;">
+                                                <a href="{{ route('challan.items', $challan->id) }}" class="btn-icon-pill btn-items-pill" title="View Items">
                                                     <i class="bi bi-box-seam"></i>
                                                 </a> 
                                                 <!-- Edit -->
-                                                <a href="{{ route('challan.edit', $challan->id) }}" class="btn-icon btn-edit" title="Edit">
+                                                <a href="{{ route('challan.edit', $challan->id) }}" class="btn-icon-pill btn-edit-pill" title="Edit Challan">
                                                     <i class="bi bi-pencil"></i>
                                                 </a>
                                                 <!-- Delete -->
                                                 <form action="{{ route('challan.softDelete', $challan->id) }}" method="POST" style="display:inline;">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn-icon btn-delete" onclick="return confirm('Are you sure you want to delete this challan?');" title="Delete">
+                                                    <button type="submit" class="btn-icon-pill btn-delete-pill" onclick="return confirm('Are you sure you want to delete this challan?');" title="Delete Challan">
                                                         <i class="bi bi-trash"></i>
                                                     </button>
                                                 </form>

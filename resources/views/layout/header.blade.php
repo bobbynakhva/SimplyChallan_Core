@@ -4,14 +4,11 @@
 <header class="header-section customize__header border__bottom animated slideInUp">
    <div class="container">
       <div class="header-wrapper">
-         <div class="logo-menu">
-            <a href="{{ route('flow-tab') }}\" class="logo">
-               <img src="{{ asset('assets/img/logo/logo.png') }}" height="100px;" width="120px;" alt="logo">
-            </a>
-            <a href="{{ route('flow-tab') }}" class="small__logo d-xl-none">
-               <img src="{{ asset('assets/img/logo/logo.png') }}" height="100px;" width="120px;" alt="logo">
-            </a>
-         </div>
+          <div class="logo-menu">
+             <a href="{{ route('flow-tab') }}" class="logo d-flex align-items-center" style="text-decoration: none;">
+                <img src="{{ asset('assets/img/logo/logo.png') }}" style="max-height: 46px; width: auto; object-fit: contain;" alt="Simply Challan Logo">
+             </a>
+          </div>
          <div class="menu__right__components d-flex align-items-center">
             <div class="sigup__grp d-lg-none">
                 @guest
