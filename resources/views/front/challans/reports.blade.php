@@ -75,14 +75,49 @@
         text-align: center;
     }
 
-    /* === MAIN CARD === */
+    /* === FLEX LAYOUT & UNBOXED PAGE CONTENT === */
+    .divided__common__body {
+        display: flex;
+        width: 100%;
+    }
+
+    .divided__common__body .side__sticky {
+        width: 220px;
+        position: fixed;
+        top: 0px;
+        z-index: 99;
+    }
+
+    .common__body {
+        margin-left: 240px !important;
+        width: calc(100% - 240px) !important;
+        max-width: calc(100% - 240px) !important;
+        flex: 1;
+        min-width: 0;
+        background: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 110px 40px 40px 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    @media (max-width: 1199px) {
+        .common__body {
+            margin-left: 0 !important;
+            width: 100% !important;
+            padding: 20px 15px !important;
+        }
+    }
+
+    /* === UNBOXED PAGE CONTENT CONTAINER === */
     .challan-card {
-        background-color: #ffffff;
-        border-radius: 12px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-        padding: 30px;
-        margin-bottom: 30px;
-        border: 1px solid #e2e8f0;
+        background-color: transparent !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin-bottom: 30px !important;
+        border: none !important;
+        width: 100% !important;
     }
 
     /* Page Header */
@@ -294,9 +329,9 @@
             </div>
 
             <!-- MAIN CONTENT -->
-            <div class="common__body">
-                <div class="container">
-                    <div class="challan-card">
+            <div class="common__body flex-grow-1 min-vw-0">
+                <!-- Unboxed Page Content -->
+                <div class="challan-card w-100">
                         
                         <!-- Header -->
                         <div class="page-header">
@@ -406,7 +441,6 @@
                         </div>
 
                     </div>
-                </div>
             </div>
 
         </div>

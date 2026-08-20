@@ -31,15 +31,49 @@
         letter-spacing: -0.03em;
     }
 
-    /* Premium Table Styling (Titan Noir Adaptation) */
+    /* === FLEX LAYOUT & UNBOXED PAGE CONTENT === */
+    .divided__common__body {
+        display: flex;
+        width: 100%;
+    }
+
+    .divided__common__body .side__sticky {
+        width: 220px;
+        position: fixed;
+        top: 0px;
+        z-index: 99;
+    }
+
+    .common__body {
+        margin-left: 240px !important;
+        width: calc(100% - 240px) !important;
+        max-width: calc(100% - 240px) !important;
+        flex: 1;
+        min-width: 0;
+        background: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 110px 40px 40px 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    @media (max-width: 1199px) {
+        .common__body {
+            margin-left: 0 !important;
+            width: 100% !important;
+            padding: 20px 15px !important;
+        }
+    }
+
+    /* Unboxed Table Wrapper */
     .premium-table-wrapper {
-        background: var(--glass-bg);
-        backdrop-filter: blur(10px);
-        border-radius: 16px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
-        border: 1px solid var(--border-color);
-        overflow: hidden;
-        padding: 1.5rem;
+        background: transparent !important;
+        backdrop-filter: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        width: 100% !important;
     }
 
     table.dataTable {
@@ -120,6 +154,30 @@
     .btn-edit { background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); }
     .btn-items { background: linear-gradient(135deg, #fbbf24 0%, #d97706 100%); }
     .btn-delete { background: linear-gradient(135deg, #f87171 0%, #dc2626 100%); }
+
+    /* Remaining Qty Badges */
+    .badge-remaining-active {
+        background-color: #fffbeb;
+        color: #b45309;
+        border: 1px solid #fde68a;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+    }
+    .badge-remaining-zero {
+        background-color: #ecfdf5;
+        color: #047857;
+        border: 1px solid #a7f3d0;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        display: inline-flex;
+        align-items: center;
+    }
 
     /* Top Action Buttons */
     .premium-btn-group .btn {
@@ -214,14 +272,51 @@
         text-align: center !important;
         box-sizing: border-box !important;
     }
-    #importExcelModal .btn-close {
-        padding: 0 !important;
-        margin: 0 !important;
-        border: none !important;
-        background: none !important;
-        font-size: 1.5rem !important;
-        line-height: 1 !important;
-        color: #94a3b8 !important;
+    /* Summary Metrics Bar */
+    .summary-metrics-bar {
+        display: flex;
+        gap: 16px;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+    }
+    .metric-chip {
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        flex: 1;
+        min-width: 220px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .metric-chip:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+    }
+    .metric-icon-box {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.25rem;
+    }
+    .metric-title {
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        color: #64748b;
+        letter-spacing: 0.04em;
+    }
+    .metric-value {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #0f172a;
+        line-height: 1.2;
     }
 </style>
 
@@ -229,12 +324,11 @@
    <div class="container-fluid">
       <div class="divided__common__body">
          @include('layout-inward.sidebar')
-         <div class="common__body">
-             <section class="flight__onewaysectio pt__40 pb__60">
-                <div class="container">
+         <div class="common__body flex-grow-1 min-vw-0">
+             <section class="flight__onewaysectio p-0">
                    
                    <!-- Header Section -->
-                   <div class="row align-items-center mb-4">
+                   <div class="row align-items-center mb-4 mx-0">
                     <div class="col-md-6">
                        <h2 class="page-title">Manage Inward Challans</h2>
                        <p class="text-muted mb-0">Track and manage all your incoming material receipts.</p>
@@ -285,6 +379,54 @@
                           </div>
                        </div>
                     </div>
+                    <!-- Summary Metrics Bar -->
+                    @php
+                        $grandReceivedKgs = 0;
+                        $grandReturnedKgs = 0;
+                        $grandReceivedPcs = 0;
+                        $grandReturnedPcs = 0;
+                        foreach($challans as $ch) {
+                            $cReceived = $ch->inwarditems->sum('qty');
+                            if ($cReceived == 0 && $ch->total_qty > 0) {
+                                $cReceived = $ch->total_qty;
+                            }
+                            $grandReceivedKgs += $cReceived;
+                            $grandReceivedPcs += $ch->inwarditems->sum('piece_no');
+                            foreach($ch->inwarditems as $iItem) {
+                                $grandReturnedKgs += $iItem->goodsStocks->sum('kgs');
+                                $grandReturnedPcs += $iItem->goodsStocks->sum('pcs');
+                            }
+                        }
+                    @endphp
+                    <div class="summary-metrics-bar">
+                        <div class="metric-chip">
+                            <div class="metric-icon-box" style="background:#e0f2fe; color:#0284c7;">
+                                <i class="bi bi-files"></i>
+                            </div>
+                            <div>
+                                <div class="metric-title">Total Inward Challans</div>
+                                <div class="metric-value">{{ count($challans) }}</div>
+                            </div>
+                        </div>
+                        <div class="metric-chip">
+                            <div class="metric-icon-box" style="background:#ecfdf5; color:#059669;">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                            <div>
+                                <div class="metric-title">Total Received</div>
+                                <div class="metric-value">{{ number_format($grandReceivedKgs, 3) }} kg <span class="fs-6 fw-normal text-muted">({{ $grandReceivedPcs }} Pcs)</span></div>
+                            </div>
+                        </div>
+                        <div class="metric-chip">
+                            <div class="metric-icon-box" style="background:#fef3c7; color:#d97706;">
+                                <i class="bi bi-arrow-return-left"></i>
+                            </div>
+                            <div>
+                                <div class="metric-title">Total Returned</div>
+                                <div class="metric-value">{{ number_format($grandReturnedKgs, 3) }} kg <span class="fs-6 fw-normal text-muted">({{ $grandReturnedPcs }} Pcs)</span></div>
+                            </div>
+                        </div>
+                    </div>
 
                    <div class="row justify-content-center">
                       <div class="col-xxl-12 col-xl-12 col-lg-12">
@@ -294,22 +436,61 @@
                                          <tr>
                                             <th>No</th>
                                             <th>Main Challan No</th>
+                                            <th>Client Name</th>
                                             <th>Date</th>
                                             <th>Purpose</th>
-                                            <th>Total Qty</th>
+                                            <th>Total Qty (kg)</th>
+                                            <th>Total Pcs</th>
+                                            <th>Returned Pcs</th>
+                                            <th>Remaining Qty (kg)</th>
+                                            <th>Remaining Pcs</th>
                                             <th width="150">Actions</th>
                                          </tr>
                                      </thead>
                                      <tbody>
                                         @foreach($challans as $key => $challan)
+                                        @php
+                                            $totalSentKgs = $challan->inwarditems->sum('qty');
+                                            if ($totalSentKgs == 0 && $challan->total_qty > 0) {
+                                                $totalSentKgs = $challan->total_qty;
+                                            }
+                                            $totalSentPcs = $challan->inwarditems->sum('piece_no');
+
+                                            $totalReturnedKgs = 0;
+                                            $totalReturnedPcs = 0;
+                                            foreach ($challan->inwarditems as $inwardItem) {
+                                                $totalReturnedKgs += $inwardItem->goodsStocks->sum('kgs');
+                                                $totalReturnedPcs += $inwardItem->goodsStocks->sum('pcs');
+                                            }
+                                            $remainingKgs = max(0, $totalSentKgs - $totalReturnedKgs);
+                                            $remainingPcs = max(0, $totalSentPcs - $totalReturnedPcs);
+                                            $clientName = $challan->industry_name ?? optional($challan->company)->industry_name ?? 'N/A';
+                                        @endphp
                                         <tr>
                                             <td class="fw-bold text-center">{{ ++$key }}</td>
                                             <td class="fw-medium text-dark">{{ $challan->main_challan_number }}</td>
+                                            <td class="fw-semibold text-dark">{{ $clientName }}</td>
                                             <td>{{ date('d M, Y', strtotime($challan->date)) }}</td>
                                             <td>
                                                 <span class="badge bg-light text-dark border">{{ optional($challan->purpose)->name }}</span>
                                             </td>
-                                            <td class="fw-bold">{{ $challan->total_qty }}</td>
+                                            <td class="fw-bold">{{ number_format($totalSentKgs, 3) }}</td>
+                                            <td class="fw-semibold">{{ $totalSentPcs }}</td>
+                                            <td class="{{ $totalReturnedPcs > 0 ? 'text-success fw-bold' : 'text-muted' }}">{{ $totalReturnedPcs }}</td>
+                                            <td>
+                                                @if($remainingKgs <= 0.001)
+                                                    <span class="badge-remaining-zero">0.000 KG</span>
+                                                @else
+                                                    <span class="badge-remaining-active">{{ number_format($remainingKgs, 3) }} KG</span>
+                                                @endif
+                                            </td>
+                                            <td>
+                                                @if($remainingPcs <= 0)
+                                                    <span class="badge-remaining-zero">0 Pcs</span>
+                                                @else
+                                                    <span class="badge-remaining-active">{{ $remainingPcs }} Pcs</span>
+                                                @endif
+                                            </td>
                                             <td>
                                                 <div class="d-flex">
                                                     <a href="{{ route('inward.challan.edit', $challan->id) }}" class="action-btn btn-edit" title="Edit">
@@ -329,12 +510,11 @@
                                             </td>
                                         </tr>
                                         @endforeach
-                                    </tbody>
+                                     </tbody>
                                   </table>
                          </div>
                       </div>
                    </div>
-                </div>
              </section>
          </div>
       </div>

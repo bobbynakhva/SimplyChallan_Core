@@ -240,7 +240,7 @@
             @include('layout-inward.sidebar')
             <div class="common__body">
                 
-                <form action="{{ route('inward.challan.store') }}" method="POST">
+                <form action="{{ route('inward.challan.store') }}" method="POST" id="mainChallanForm">
                 @csrf
 
                 <div class="challan-card">
@@ -358,13 +358,25 @@
                     </div>
 
                     <!-- FOOTER SECTION -->
-                    <div class="challan-footer">
-                        <button type="submit" class="btn-save-challan">Save Challan</button>
+                    <div class="challan-footer flex-column align-items-center">
+                        <div class="d-flex justify-content-center align-items-center gap-4 w-100">
+                            <button type="submit" class="btn-save-challan">Save Challan <span class="badge bg-white text-dark ms-2 opacity-75" style="font-size: 0.7rem; vertical-align: middle;">Ctrl + S</span></button>
 
-                        <div class="total-pill">
-                            <span class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Total Qty</span>
-                            <div class="total-value" id="total_qty_display">0.00</div>
-                            <input type="hidden" name="total_qty" id="total_qty" value="0.00">
+                            <div class="total-pill">
+                                <span class="text-muted text-uppercase fw-bold" style="font-size: 0.75rem;">Total Qty</span>
+                                <div class="total-value" id="total_qty_display">0.00</div>
+                                <input type="hidden" name="total_qty" id="total_qty" value="0.00">
+                            </div>
+                        </div>
+
+                        <!-- Keyboard Shortcut Helper -->
+                        <div class="shortcut-helper mt-3 text-muted text-center" style="font-size: 0.8rem; background: #f8fafc; padding: 8px 18px; border-radius: 20px; border: 1px solid #e2e8f0;">
+                            <i class="bi bi-keyboard me-1 text-warning"></i> 
+                            <span class="me-3"><strong>Alt + C</strong>: Select Client Search</span>
+                            <span class="me-3"><strong>Enter</strong>: Next Field / Add Row</span>
+                            <span class="me-3"><strong>Ctrl + S</strong>: Save Challan</span>
+                            <span class="me-3"><strong>Alt + A</strong>: Add New Row</span>
+                            <span><strong>Alt + D</strong>: Remove Row</span>
                         </div>
                     </div>
                 </div>
@@ -393,6 +405,48 @@ $(document).ready(function() {
         placeholder: "Select Purpose",
         allowClear: true,
         width: '100%'
+    });
+
+    // INSTANT SEARCH FOCUS FOR SELECT2 DROPDOWNS
+    $(document).on('select2:open', function() {
+        setTimeout(function() {
+            let searchInput = document.querySelector('.select2-container--open .select2-search__field');
+            if (searchInput) {
+                searchInput.focus();
+            }
+        }, 10);
+    });
+
+    // Auto-focus & open Select Client on page load
+    setTimeout(function() {
+        $('#company_id').select2('open');
+    }, 300);
+
+    // Sequential Navigation: Select Client -> Date -> Purpose -> Main Challan No -> Items
+    $('#company_id').on('select2:select', function() {
+        setTimeout(function() {
+            $('input[name="date"]').focus();
+        }, 100);
+    });
+
+    $('input[name="date"]').on('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            $('#purpose').select2('open');
+        }
+    });
+
+    $('#purpose').on('select2:select', function() {
+        setTimeout(function() {
+            $('input[name="main_challan_number"]').focus();
+        }, 100);
+    });
+
+    $('input[name="main_challan_number"]').on('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            $('#itemsContainer .item-row').first().find('input').first().focus().select();
+        }
     });
 
     // 1. Client Details
@@ -432,12 +486,12 @@ $(document).ready(function() {
 
     // 3. Add Item
     let itemIndex = 1;
-    $('#addItemBtn').click(function() {
+    function addNewItemRow() {
         let itemHtml = `
             <div class="challan-items-grid item-row">
                 <div class="field-pill">
                     <div class="pill-input">
-                        <input type="text" name="inwarditems[${itemIndex}][item_name]" class="form-control" placeholder="e.g. Cotton" required>
+                        <input type="text" name="inwarditems[${itemIndex}][item_name]" class="form-control" placeholder="Item Name" required>
                     </div>
                 </div>
 
@@ -462,6 +516,10 @@ $(document).ready(function() {
         
         $('#itemsContainer').append(itemHtml);
         itemIndex++;
+    }
+
+    $('#addItemBtn').click(function() {
+        addNewItemRow();
     });
 
     // 4. Remove Item
@@ -474,6 +532,56 @@ $(document).ready(function() {
             let row = $(this).closest('.item-row');
             row.find('input').val('');
             calculateTotals();
+        }
+    });
+
+    // KEYBOARD SHORTCUTS & SMART ENTER NAVIGATION
+    // A. Enter Key Navigation within Item Rows
+    $('#itemsContainer').on('keydown', 'input', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            let currentRow = $(this).closest('.item-row');
+            let inputs = currentRow.find('input:not([readonly])');
+            let index = inputs.index(this);
+
+            if (index < inputs.length - 1) {
+                // Move focus to next field in current row
+                inputs.eq(index + 1).focus().select();
+            } else {
+                // On last input of row, automatically add a new row & focus its item name
+                addNewItemRow();
+                let newRow = $('#itemsContainer .item-row').last();
+                newRow.find('input').first().focus();
+            }
+        }
+    });
+
+    // B. Global Hotkeys (Ctrl+S: Save, Alt+C: Search Client, Alt+A: Add Row, Alt+D: Remove Row)
+    $(document).on('keydown', function(e) {
+        // Alt+C => Open Select Client & Focus Search Box Instantly
+        if (e.altKey && (e.key === 'c' || e.key === 'C')) {
+            e.preventDefault();
+            $('#company_id').select2('open');
+        }
+        // Ctrl+S or Alt+S => Save Form
+        if ((e.ctrlKey || e.altKey) && (e.key === 's' || e.key === 'S')) {
+            e.preventDefault();
+            $('#company_id').closest('form').submit();
+        }
+        // Alt+A => Add New Item Row
+        if (e.altKey && (e.key === 'a' || e.key === 'A')) {
+            e.preventDefault();
+            addNewItemRow();
+            let newRow = $('#itemsContainer .item-row').last();
+            newRow.find('input').first().focus();
+        }
+        // Alt+D => Remove Currently Focused Item Row
+        if (e.altKey && (e.key === 'd' || e.key === 'D')) {
+            e.preventDefault();
+            let focused = $(document.activeElement);
+            if (focused.closest('.item-row').length > 0) {
+                focused.closest('.item-row').find('.removeItemBtn').click();
+            }
         }
     });
 

@@ -218,6 +218,37 @@
         background-color: #d97706;
         transform: translateY(-1px);
     }
+
+    /* Modal Badges */
+    .badge-sent-modal {
+        background-color: #eef2ff;
+        color: #3730a3;
+        border: 1.5px solid #c7d2fe;
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        display: inline-flex;
+        align-items: center;
+    }
+    .badge-remaining-modal {
+        font-weight: 700;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        display: inline-flex;
+        align-items: center;
+    }
+    .badge-remaining-modal.remaining-active {
+        background-color: #fffbeb;
+        color: #b45309;
+        border: 1.5px solid #fde68a;
+    }
+    .badge-remaining-modal.remaining-zero {
+        background-color: #ecfdf5;
+        color: #047857;
+        border: 1.5px solid #a7f3d0;
+    }
     
     /* DataTables Pagination */
     .dataTables_wrapper .dataTables_paginate .paginate_button.current {
@@ -236,6 +267,11 @@
     .dataTables_filter input:focus {
         border-color: #f59e0b !important;
         box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15) !important;
+    }
+
+    .form--control.is-invalid {
+        border-color: #ef4444 !important;
+        background-color: #fef2f2 !important;
     }
 </style>
 @endpush
@@ -299,7 +335,9 @@
                                         <th>Returned (kg)</th>
                                         <th>Waste/Scrap (kg)</th>
                                         <th>Unrecoverable (kg)</th>
-                                        <th>Pieces</th>
+                                        <th>Total Pcs</th>
+                                        <th>Returned Pcs</th>
+                                        <th>Remaining Pcs</th>
                                         <th>Last Despatch</th>
                                         <th>Status</th>
                                         <th>Action</th>
@@ -315,7 +353,8 @@
                                             $totalAccounted = $totalReturned + $wasteScrapReturned + $wasteNotRecoverable;
                                             $remainingQty = max(0, $item->total_qty - $totalAccounted);
 
-                                            $remainingpiece = max(0, $item->piece_no - $item->returns->sum('piece_returned'));
+                                            $returnedPieces = max(0, $item->returns->sum('piece_returned'));
+                                            $remainingpiece = max(0, $item->piece_no - $returnedPieces);
                                             $status = ($remainingQty <= 0.001) ? 'Completed' : 'Pending';
                                         @endphp
                                         <tr>
@@ -325,7 +364,9 @@
                                             <td class="{{ $totalReturned > 0 ? 'text-success' : 'text-muted' }}">{{ number_format($totalReturned, 3) }}</td>
                                             <td>{{ number_format($wasteScrapReturned, 3) }}</td>
                                             <td>{{ number_format($wasteNotRecoverable, 3) }}</td>
-                                            <td>{{ $remainingpiece }}</td>
+                                            <td>{{ $item->piece_no ?? 0 }}</td>
+                                            <td class="{{ $returnedPieces > 0 ? 'text-success fw-bold' : 'text-muted' }}">{{ $returnedPieces }}</td>
+                                            <td class="fw-bold {{ $remainingpiece > 0 ? 'text-primary' : 'text-muted' }}">{{ $remainingpiece }}</td>
                                             <td>
                                                 {{ optional($item->returns->first())->despatch_date 
                                                     ? \Carbon\Carbon::parse($item->returns->first()->despatch_date)->format('d/m/Y') 
@@ -359,17 +400,43 @@
 
 <!-- Modal Section (Outside Container) -->
 @foreach($challan->items as $key => $item)
+@php
+    $totalReturnedModal = max(0, $item->returns->sum('quantity_returned'));
+    $wasteScrapModal = max(0, $item->returns->sum('waste_scrap_returned'));
+    $wasteNotRecoverableModal = max(0, $item->returns->sum('waste_not_recoverable'));
+    $totalAccountedModal = $totalReturnedModal + $wasteScrapModal + $wasteNotRecoverableModal;
+    $remainingQtyModal = max(0, $item->total_qty - $totalAccountedModal);
+    $returnedPcsModal = max(0, $item->returns->sum('piece_returned'));
+    $remainingPcsModal = max(0, $item->piece_no - $returnedPcsModal);
+@endphp
 <div id="updateReturnModal-{{ $item->id }}" class="white-popup mfp-hide">
     <div class="row">
         <div class="col-12 text-center mb-4">
-            <h5 class="fw-bold text-dark">Return Item</h5>
-            <div class="text-muted">{{ $item->item_name }} (Sent: {{ $item->total_qty }} KG)</div>
+            <h5 class="fw-bold text-dark mb-2">Return Item</h5>
+            <div class="d-flex align-items-center justify-content-center gap-2 flex-wrap" style="font-size: 0.9rem;">
+                <span class="fw-bold text-dark me-1">{{ $item->item_name }}</span>
+                <span class="badge-sent-modal">
+                    <i class="bi bi-box-arrow-up-right me-1"></i>Sent: {{ number_format($item->total_qty, 3) }} KG ({{ $item->piece_no ?? 0 }} Pcs)
+                </span>
+                <span class="badge bg-light text-success border px-2 py-1" style="border-radius: 20px; font-size: 0.82rem; font-weight: 700;">
+                    <i class="bi bi-check2-circle me-1"></i>Returned: {{ number_format($totalReturnedModal, 3) }} KG ({{ $returnedPcsModal }} Pcs)
+                </span>
+                <span class="badge-remaining-modal {{ $remainingQtyModal <= 0.001 ? 'remaining-zero' : 'remaining-active' }}">
+                    <i class="bi bi-hourglass-split me-1"></i>Remaining: {{ number_format($remainingQtyModal, 3) }} KG ({{ $remainingPcsModal }} Pcs)
+                </span>
+            </div>
         </div>
     </div>
 
-    <form method="POST" action="{{ route('return-items.store') }}">
+    <form method="POST" action="{{ route('return-items.store') }}" class="return-form" data-remaining="{{ $remainingQtyModal }}">
         @csrf
         <input type="hidden" name="challan_item_id" value="{{ $item->id }}">
+
+        <!-- Dynamic Error Alert -->
+        <div class="modal-error-alert alert alert-danger d-none align-items-center gap-2 mb-3" style="border-radius: 8px; border: 1px solid #fecdd3; background-color: #fff1f2; color: #e11d48;">
+            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+            <span class="error-msg fw-semibold"></span>
+        </div>
 
         <div class="row g-3">
             <!-- Row 1 -->
@@ -444,6 +511,43 @@ $(document).ready(function() {
         type: 'inline',
         midClick: true,
         mainClass: 'mfp-fade'
+    });
+
+    // Validate Return Form against Remaining Quantity
+    $('.return-form').on('submit', function(e) {
+        var form = $(this);
+        var remainingQty = parseFloat(form.data('remaining')) || 0;
+
+        var qtyReturned = parseFloat(form.find('input[name="quantity_returned"]').val()) || 0;
+        var wasteScrap = parseFloat(form.find('input[name="waste_scrap_returned"]').val()) || 0;
+        var wasteUnrecoverable = parseFloat(form.find('input[name="waste_not_recoverable"]').val()) || 0;
+
+        var totalEntered = qtyReturned + wasteScrap + wasteUnrecoverable;
+
+        // Reset previous error state
+        var errorBox = form.find('.modal-error-alert');
+        errorBox.addClass('d-none').removeClass('d-flex');
+        form.find('.form--control').removeClass('is-invalid');
+
+        if (totalEntered > (remainingQty + 0.0001)) {
+            e.preventDefault();
+            
+            var msg = 'Quantity Exceeded! Total entered (' + totalEntered.toFixed(3) + ' KG) exceeds remaining allowed quantity (' + remainingQty.toFixed(3) + ' KG). Cannot save!';
+            
+            // Show error box in modal
+            errorBox.find('.error-msg').text(msg);
+            errorBox.removeClass('d-none').addClass('d-flex');
+            
+            // Highlight input fields
+            if (qtyReturned > 0) form.find('input[name="quantity_returned"]').addClass('is-invalid');
+            if (wasteScrap > 0) form.find('input[name="waste_scrap_returned"]').addClass('is-invalid');
+            if (wasteUnrecoverable > 0) form.find('input[name="waste_not_recoverable"]').addClass('is-invalid');
+            if (totalEntered === 0) form.find('input[name="quantity_returned"]').addClass('is-invalid');
+
+            // Show error dialog box
+            alert('⚠️ Cannot Save Return:\n\n' + msg);
+            return false;
+        }
     });
 });
 </script>

@@ -292,7 +292,7 @@
             <!-- MAIN CONTENT -->
             <div class="common__body">
                 <div class="container">
-                    <form action="{{ route('challan.store') }}" method="POST">
+                    <form action="{{ route('challan.store') }}" method="POST" id="mainChallanForm">
                         @csrf
                         <div class="challan-card">
                             
@@ -445,10 +445,20 @@
                             </div>
 
                             <!-- FOOTER ACTION -->
-                            <div class="text-center mt-5 mb-3">
+                            <div class="text-center mt-5 mb-3 d-flex flex-column align-items-center">
                                 <button type="submit" class="btn-gold">
-                                    Save Challan <i class="bi bi-check2-circle ms-2"></i>
+                                    Save Challan <span class="badge bg-white text-dark ms-2 opacity-75" style="font-size: 0.7rem; vertical-align: middle;">Ctrl + S</span> <i class="bi bi-check2-circle ms-2"></i>
                                 </button>
+
+                                <!-- Keyboard Shortcut Helper -->
+                                <div class="shortcut-helper mt-3 text-muted text-center" style="font-size: 0.8rem; background: #f8fafc; padding: 8px 18px; border-radius: 20px; border: 1px solid #e2e8f0;">
+                                    <i class="bi bi-keyboard me-1 text-warning"></i> 
+                                    <span class="me-3"><strong>Alt + C</strong>: Select Client Search</span>
+                                    <span class="me-3"><strong>Enter</strong>: Next Field / Add Row</span>
+                                    <span class="me-3"><strong>Ctrl + S</strong>: Save Challan</span>
+                                    <span class="me-3"><strong>Alt + A</strong>: Add New Row</span>
+                                    <span><strong>Alt + D</strong>: Remove Row</span>
+                                </div>
                             </div>
 
                         </div>
@@ -477,6 +487,55 @@
           placeholder: "Select Purpose...",
           allowClear: true,
           width: '100%'
+      });
+
+      // INSTANT SEARCH FOCUS FOR SELECT2 DROPDOWNS
+      $(document).on('select2:open', function() {
+          setTimeout(function() {
+              let searchInput = document.querySelector('.select2-container--open .select2-search__field');
+              if (searchInput) {
+                  searchInput.focus();
+              }
+          }, 10);
+      });
+
+      // Auto-focus & open Select Client on page load
+      setTimeout(function() {
+          $('#company_id').select2('open');
+      }, 300);
+
+      // Sequential Navigation: Select Client -> Date -> Purpose -> Vehicle No -> Packages -> Items
+      $('#company_id').on('select2:select', function() {
+          setTimeout(function() {
+              $('input[name="date"]').focus();
+          }, 100);
+      });
+
+      $('input[name="date"]').on('keydown', function(e) {
+          if (e.key === 'Enter') {
+              e.preventDefault();
+              $('#purpose').select2('open');
+          }
+      });
+
+      $('#purpose').on('select2:select', function() {
+          setTimeout(function() {
+              $('input[name="vehicle_no"]').focus();
+          }, 100);
+      });
+
+      $('input[name="vehicle_no"]').on('keydown', function(e) {
+          if (e.key === 'Enter') {
+              e.preventDefault();
+              $('input[name="no_of_packages"]').focus();
+          }
+      });
+
+      $('input[name="no_of_packages"]').on('keydown', function(e) {
+          if (e.key === 'Enter') {
+              e.preventDefault();
+              $('#itemsContainer .item-row').first().find('input').first().focus().select();
+          }
       });
       
       // Purpose & Notes Logic
@@ -543,8 +602,8 @@
            $('#grand_total').val(grandTotal.toFixed(2));
        }
    
-       // Add Item
-       $('#addItemBtn').on('click', function () {
+       // Add Item Function
+       function addNewItemRow() {
            const container = $('#itemsContainer');
            
            // Get values from the last row to copy
@@ -585,13 +644,13 @@
            
            container.append(newItemRow);
            
-           // Trigger calculation for the new row if price was copied (and qty is empty, total remains 0)
-           // But actually we need qty to calculate total. 
-           // Just to be safe, let's init the new row's calculation state
            let newRow = container.find('.item-row').last();
            calculateItemTotal(newRow);
-
            itemIndex++;
+       }
+
+       $('#addItemBtn').on('click', function () {
+           addNewItemRow();
        });
    
        // Remove Item
@@ -612,10 +671,7 @@
        });
 
        // LocalStorage Persistence for Row 1
-       // Save to LocalStorage on input change
        $('#itemsContainer').on('input', '.hsn-code, .price-per-kg', function() {
-           // We only want to save the "default" values, maybe from the first row?
-           // Let's save the *last modified* value as the default for next session
            let val = $(this).val();
            if ($(this).hasClass('hsn-code')) {
                localStorage.setItem('default_hsn', val);
@@ -624,7 +680,6 @@
            }
        });
 
-       // Load from LocalStorage on Init (only if inputs are empty)
        let savedHsn = localStorage.getItem('default_hsn');
        let savedPrice = localStorage.getItem('default_price');
        
@@ -638,12 +693,61 @@
            let firstPriceInput = $('input[name="items[0][price_per_kg]"]');
            if (firstPriceInput.val() === '') {
                firstPriceInput.val(savedPrice);
-               // Trigger calc? No qty yet so fine.
            }
        }
    
        $('#cgst, #sgst').on('input', function () {
            calculateAllTotals();
+       });
+
+       // KEYBOARD SHORTCUTS & SMART ENTER NAVIGATION
+       // A. Enter Key Navigation within Item Rows
+       $('#itemsContainer').on('keydown', 'input', function(e) {
+           if (e.key === 'Enter') {
+               e.preventDefault();
+               let currentRow = $(this).closest('.item-row');
+               let inputs = currentRow.find('input:not([readonly])');
+               let index = inputs.index(this);
+
+               if (index < inputs.length - 1) {
+                   // Move focus to next field in current row
+                   inputs.eq(index + 1).focus().select();
+               } else {
+                   // On last input of row, automatically add a new row & focus its item name
+                   addNewItemRow();
+                   let newRow = $('#itemsContainer .item-row').last();
+                   newRow.find('input').first().focus();
+               }
+           }
+       });
+
+       // B. Global Hotkeys (Ctrl+S: Save, Alt+C: Search Client, Alt+A: Add Row, Alt+D: Remove Row)
+       $(document).on('keydown', function(e) {
+           // Alt+C => Open Select Client & Focus Search Box Instantly
+           if (e.altKey && (e.key === 'c' || e.key === 'C')) {
+               e.preventDefault();
+               $('#company_id').select2('open');
+           }
+           // Ctrl+S or Alt+S => Save Form
+           if ((e.ctrlKey || e.altKey) && (e.key === 's' || e.key === 'S')) {
+               e.preventDefault();
+               $('#company_id').closest('form').submit();
+           }
+           // Alt+A => Add New Item Row
+           if (e.altKey && (e.key === 'a' || e.key === 'A')) {
+               e.preventDefault();
+               addNewItemRow();
+               let newRow = $('#itemsContainer .item-row').last();
+               newRow.find('input').first().focus();
+           }
+           // Alt+D => Remove Currently Focused Item Row
+           if (e.altKey && (e.key === 'd' || e.key === 'D')) {
+               e.preventDefault();
+               let focused = $(document.activeElement);
+               if (focused.closest('.item-row').length > 0) {
+                   focused.closest('.item-row').find('.removeItemBtn').click();
+               }
+           }
        });
    
        calculateAllTotals();

@@ -287,7 +287,7 @@
             <!-- MAIN CONTENT -->
             <div class="common__body">
                 <div class="container">
-                    <form action="{{ route('inward.challan.update', $challan->id) }}" method="POST">
+                    <form action="{{ route('inward.challan.update', $challan->id) }}" method="POST" id="mainChallanForm">
                         @csrf
                         @method('PUT')
                         <div class="challan-card">
@@ -396,10 +396,20 @@
                             </div>
 
                             <!-- FOOTER ACTION -->
-                            <div class="text-center mt-5 mb-3">
+                            <div class="text-center mt-5 mb-3 d-flex flex-column align-items-center">
                                 <button type="submit" class="btn-gold">
-                                    Update Inward Challan <i class="bi bi-check2-circle ms-2"></i>
+                                    Update Inward Challan <span class="badge bg-white text-dark ms-2 opacity-75" style="font-size: 0.7rem; vertical-align: middle;">Ctrl + S</span> <i class="bi bi-check2-circle ms-2"></i>
                                 </button>
+
+                                <!-- Keyboard Shortcut Helper -->
+                                <div class="shortcut-helper mt-3 text-muted text-center" style="font-size: 0.8rem; background: #f8fafc; padding: 8px 18px; border-radius: 20px; border: 1px solid #e2e8f0;">
+                                     <i class="bi bi-keyboard me-1 text-warning"></i> 
+                                     <span class="me-3"><strong>Alt + C</strong>: Select Client Search</span>
+                                     <span class="me-3"><strong>Enter</strong>: Next Field / Add Row</span>
+                                     <span class="me-3"><strong>Ctrl + S</strong>: Update Challan</span>
+                                     <span class="me-3"><strong>Alt + A</strong>: Add New Row</span>
+                                     <span><strong>Alt + D</strong>: Remove Row</span>
+                                </div>
                             </div>
 
                         </div>
@@ -429,6 +439,21 @@
             allowClear: true,
             width: '100%'
         });
+
+        // INSTANT SEARCH FOCUS FOR SELECT2 DROPDOWNS
+        $(document).on('select2:open', function() {
+            setTimeout(function() {
+                let searchInput = document.querySelector('.select2-container--open .select2-search__field');
+                if (searchInput) {
+                    searchInput.focus();
+                }
+            }, 10);
+        });
+
+        // Auto-focus first item row field on page load
+        setTimeout(function() {
+            $('#itemsContainer .item-row').first().find('input').first().focus();
+        }, 300);
         
         // Client Details Fetcher
         $('#company_id').on('change', function() {
@@ -457,7 +482,7 @@
         let itemIndex = {{ $challan->inwarditems->count() }}; // Start from existing
         if(itemIndex === 0) itemIndex = 1;
 
-        $('#addItemBtn').on('click', function () {
+        function addNewItemRow() {
             const newItemRow = `
                 <div class="row g-3 item-row mb-3 align-items-end">
                     <div class="col-md-4 form-group">
@@ -478,6 +503,10 @@
                 </div>`;
             $('#itemsContainer').append(newItemRow);
             itemIndex++;
+        }
+
+        $('#addItemBtn').on('click', function () {
+            addNewItemRow();
         });
 
         $('#itemsContainer').on('click', '.removeItemBtn', function () {
@@ -503,6 +532,56 @@
             calculateTotal();
         });
         
+        // KEYBOARD SHORTCUTS & SMART ENTER NAVIGATION
+        // A. Enter Key Navigation within Item Rows
+        $('#itemsContainer').on('keydown', 'input', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                let currentRow = $(this).closest('.item-row');
+                let inputs = currentRow.find('input:not([readonly])');
+                let index = inputs.index(this);
+
+                if (index < inputs.length - 1) {
+                    // Move focus to next field in current row
+                    inputs.eq(index + 1).focus().select();
+                } else {
+                    // On last input of row, automatically add a new row & focus its item name
+                    addNewItemRow();
+                    let newRow = $('#itemsContainer .item-row').last();
+                    newRow.find('input').first().focus();
+                }
+            }
+        });
+
+        // B. Global Hotkeys (Ctrl+S: Save, Alt+C: Search Client, Alt+A: Add Row, Alt+D: Remove Row)
+        $(document).on('keydown', function(e) {
+            // Alt+C => Open Select Client & Focus Search Box Instantly
+            if (e.altKey && (e.key === 'c' || e.key === 'C')) {
+                e.preventDefault();
+                $('#company_id').select2('open');
+            }
+            // Ctrl+S or Alt+S => Save Form
+            if ((e.ctrlKey || e.altKey) && (e.key === 's' || e.key === 'S')) {
+                e.preventDefault();
+                $('#company_id').closest('form').submit();
+            }
+            // Alt+A => Add New Item Row
+            if (e.altKey && (e.key === 'a' || e.key === 'A')) {
+                e.preventDefault();
+                addNewItemRow();
+                let newRow = $('#itemsContainer .item-row').last();
+                newRow.find('input').first().focus();
+            }
+            // Alt+D => Remove Currently Focused Item Row
+            if (e.altKey && (e.key === 'd' || e.key === 'D')) {
+                e.preventDefault();
+                let focused = $(document.activeElement);
+                if (focused.closest('.item-row').length > 0) {
+                    focused.closest('.item-row').find('.removeItemBtn').click();
+                }
+            }
+        });
+
         // Initial calc
         calculateTotal();
     });

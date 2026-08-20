@@ -76,14 +76,49 @@
         text-align: center;
     }
 
-    /* === MAIN CARD CONTAINER === */
+    /* === FLEX LAYOUT & UNBOXED PAGE CONTENT === */
+    .divided__common__body {
+        display: flex;
+        width: 100%;
+    }
+
+    .divided__common__body .side__sticky {
+        width: 220px;
+        position: fixed;
+        top: 0px;
+        z-index: 99;
+    }
+
+    .common__body {
+        margin-left: 240px !important;
+        width: calc(100% - 240px) !important;
+        max-width: calc(100% - 240px) !important;
+        flex: 1;
+        min-width: 0;
+        background: transparent !important;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 110px 40px 40px 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    @media (max-width: 1199px) {
+        .common__body {
+            margin-left: 0 !important;
+            width: 100% !important;
+            padding: 20px 15px !important;
+        }
+    }
+
+    /* === UNBOXED PAGE CONTENT CONTAINER === */
     .challan-card {
-        background-color: #ffffff;
-        border-radius: 16px;
-        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
-        padding: 32px;
-        margin-bottom: 30px;
-        border: 1px solid #e2e8f0;
+        background-color: transparent !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin-bottom: 30px !important;
+        border: none !important;
+        width: 100% !important;
     }
 
     /* Page Header */
@@ -93,10 +128,10 @@
         align-items: center;
         margin-bottom: 24px;
         padding-bottom: 20px;
-        border-bottom: 1px solid #f1f5f9;
+        border-bottom: 1px solid #e2e8f0;
     }
     .page-title {
-        font-size: 1.6rem;
+        font-size: 1.75rem;
         font-weight: 800;
         color: #0f172a;
         margin: 0;
@@ -250,44 +285,82 @@
         font-size: 0.78rem;
     }
 
+    /* KGS Sent & Received Inverse Badges */
+    .badge-kgs-sent {
+        background-color: #eef2ff;
+        color: #3730a3;
+        border: 1.5px solid #c7d2fe;
+        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        box-shadow: 0 1px 3px rgba(55, 48, 163, 0.08);
+    }
+
+    .badge-kgs-received {
+        font-weight: 700;
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.82rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .badge-kgs-received.received-active {
+        background-color: #ecfdf5;
+        color: #047857;
+        border: 1.5px solid #a7f3d0;
+        box-shadow: 0 1px 3px rgba(4, 120, 87, 0.08);
+    }
+    .badge-kgs-received.received-zero {
+        background-color: #f8fafc;
+        color: #94a3b8;
+        border: 1.5px solid #e2e8f0;
+    }
+
     /* Action Toolbar Buttons */
     .btn-action-group {
         display: inline-flex;
-        gap: 6px;
-        background: #f8fafc;
-        padding: 4px;
-        border-radius: 10px;
-        border: 1px solid #e2e8f0;
+        gap: 8px;
+        background: #ffffff;
+        padding: 6px 10px;
+        border-radius: 12px;
+        border: 1px solid #cbd5e1;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
     }
     .btn-icon-pill {
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        border: 1px solid transparent;
-        transition: all 0.2s ease;
+        border: 1.5px solid transparent;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         text-decoration: none;
-        font-size: 0.9rem;
+        font-size: 1.15rem;
     }
     .btn-icon-pill:hover {
         transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
     }
     
-    .btn-view-pill { color: #0284c7; background: #ffffff; border-color: #e0f2fe; }
+    .btn-view-pill { color: #0284c7; background: #f0f9ff; border-color: #bae6fd; }
     .btn-view-pill:hover { background: #0284c7; color: #ffffff; border-color: #0284c7; }
 
-    .btn-print-pill { color: #4f46e5; background: #ffffff; border-color: #eef2ff; }
+    .btn-print-pill { color: #4f46e5; background: #eeefee; border-color: #c7d2fe; }
     .btn-print-pill:hover { background: #4f46e5; color: #ffffff; border-color: #4f46e5; }
 
-    .btn-items-pill { color: #059669; background: #ffffff; border-color: #ecfdf5; }
+    .btn-items-pill { color: #059669; background: #ecfdf5; border-color: #a7f3d0; }
     .btn-items-pill:hover { background: #059669; color: #ffffff; border-color: #059669; }
 
-    .btn-edit-pill { color: #d97706; background: #ffffff; border-color: #fffbeb; }
+    .btn-edit-pill { color: #d97706; background: #fffbeb; border-color: #fde68a; }
     .btn-edit-pill:hover { background: #f59e0b; color: #ffffff; border-color: #f59e0b; }
 
-    .btn-delete-pill { color: #e11d48; background: #ffffff; border-color: #ffe4e6; }
+    .btn-delete-pill { color: #e11d48; background: #fff1f2; border-color: #fecdd3; }
     .btn-delete-pill:hover { background: #e11d48; color: #ffffff; border-color: #e11d48; }
 
     /* DataTables Pagination & Controls */
@@ -359,152 +432,190 @@
             </div>
 
             <!-- MAIN CONTENT -->
-            <div class="common__body">
-                <div class="container">
+            <div class="common__body flex-grow-1 min-vw-0">
+                
+                <!-- Unboxed Page Content -->
+                <div class="challan-card w-100">
                     
-                    <!-- Main Card -->
-                    <div class="challan-card">
-                        
-                        <!-- Header -->
-                        <div class="page-header">
-                            <div>
-                                <h4 class="page-title">Manage Challans</h4>
-                                <div class="page-subtitle">View, print, and manage your outward delivery challans</div>
-                            </div>
-                            <div class="d-flex align-items-center">
-                                <button type="button" class="btn-bulk-import-outline" data-bs-toggle="modal" data-bs-target="#bulkImportModal">
-                                    <i class="bi bi-file-earmark-arrow-up"></i> Bulk Import
-                                </button>
-                                <a href="{{ route('challan.create') }}" class="btn-gold">
-                                    <i class="bi bi-plus-lg"></i> Add Challan
-                                </a>
-                            </div>
+                    <!-- Header -->
+                    <div class="page-header">
+                        <div>
+                            <h4 class="page-title">Manage Challans</h4>
+                            <div class="page-subtitle">View, print, and manage your outward delivery challans</div>
                         </div>
-
-                        <!-- Summary Metrics Bar -->
-                        <div class="summary-metrics-bar">
-                            <div class="metric-chip">
-                                <div class="metric-icon-box" style="background:#e0f2fe; color:#0284c7;">
-                                    <i class="bi bi-files"></i>
-                                </div>
-                                <div>
-                                    <div class="metric-title">Total Outward Challans</div>
-                                    <div class="metric-value">{{ count($challans) }}</div>
-                                </div>
-                            </div>
-                            <div class="metric-chip">
-                                <div class="metric-icon-box" style="background:#ecfdf5; color:#059669;">
-                                    <i class="bi bi-currency-rupee"></i>
-                                </div>
-                                <div>
-                                    <div class="metric-title">Total Valuation</div>
-                                    <div class="metric-value">₹ {{ number_format($challans->sum('grand_total'), 2) }}</div>
-                                </div>
-                            </div>
-                            <div class="metric-chip">
-                                <div class="metric-icon-box" style="background:#fef3c7; color:#d97706;">
-                                    <i class="bi bi-calendar-check"></i>
-                                </div>
-                                <div>
-                                    <div class="metric-title">Active Period</div>
-                                    <div class="metric-value">{{ session('financial_year_name', 'Current FY') }}</div>
-                                </div>
-                            </div>
+                        <div class="d-flex align-items-center">
+                            <button type="button" class="btn-bulk-import-outline" data-bs-toggle="modal" data-bs-target="#bulkImportModal">
+                                <i class="bi bi-file-earmark-arrow-up"></i> Bulk Import
+                            </button>
+                            <a href="{{ route('challan.create') }}" class="btn-gold">
+                                <i class="bi bi-plus-lg"></i> Add Challan
+                            </a>
                         </div>
-
-                        <!-- Bulk Import Modal -->
-                        <div class="modal fade" id="bulkImportModal" tabindex="-1" aria-labelledby="bulkImportModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content" style="border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
-                                    <div class="modal-header" style="border-bottom: 1px solid #f1f5f9; padding: 20px 24px;">
-                                        <h5 class="modal-title fw-bold" id="bulkImportModalLabel" style="color:#0f172a;">Bulk Import Challans</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <form action="{{ route('challan.bulkImport') }}" method="POST" enctype="multipart/form-data">
-                                        @csrf
-                                        <div class="modal-body" style="padding: 24px;">
-                                            <div class="mb-3">
-                                                <label for="excel_file" class="form-label fw-semibold" style="color:#334155;">Choose Excel or CSV File</label>
-                                                <input type="file" class="form-control" name="excel_file" id="excel_file" required style="border-radius: 10px; padding: 10px;">
-                                                <div class="form-text text-muted small mt-1">Supported file formats: .xlsx, .xls, .csv</div>
-                                            </div>
-                                            <div class="alert alert-info border-0 rounded-3 d-flex align-items-center gap-2" style="background:#f0f9ff; color:#0369a1;">
-                                                <i class="bi bi-info-circle-fill fs-5"></i>
-                                                <span>Download the sample template below to ensure correct formatting.</span>
-                                            </div>
-                                            <a href="{{ route('challan.sampleDownload') }}" class="btn btn-sm btn-link text-decoration-none fw-bold p-0" style="color:#0284c7;">
-                                                <i class="bi bi-download me-1"></i> Download Sample Excel Template
-                                            </a>
-                                        </div>
-                                        <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 16px 24px;">
-                                            <button type="button" class="btn btn-light fw-semibold" data-bs-dismiss="modal" style="border-radius: 8px;">Close</button>
-                                            <button type="submit" class="btn-gold" style="box-shadow: none;">Upload & Import</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Table -->
-                        <div class="table-responsive">
-                            <table class="table align-middle" id="challanTable">
-                                <thead>
-                                    <tr>
-                                        <th>Challan No</th>
-                                        <th>Date</th>
-                                        <th>Purpose</th>
-                                        <th>Total (₹)</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($challans as $challan)
-                                    <tr>
-                                        <td class="fw-bold" style="color:#0f172a;">{{ $challan->challan_number }}</td>
-                                        <td style="color:#475569;">{{ date('d-m-Y', strtotime($challan->date)) }}</td>
-                                        <td>
-                                            <span class="badge-purpose">
-                                                {{ optional($challan->purpose)->name ?? 'General' }}
-                                            </span>
-                                        </td>
-                                        <td class="fw-bold" style="color:#0f172a;">
-                                            ₹ {{ number_format($challan->grand_total, 2) }}
-                                        </td>
-                                        <td>
-                                            <div class="btn-action-group">
-                                                <!-- View -->
-                                                <a href="{{ route('challan.view', $challan->id) }}" class="btn-icon-pill btn-view-pill" title="View Challan">
-                                                    <i class="bi bi-eye"></i>
-                                                </a>
-                                                <!-- Print -->
-                                                <a href="{{ route('challan.print', $challan->id) }}" class="btn-icon-pill btn-print-pill" title="Print Challan">
-                                                    <i class="bi bi-printer"></i>
-                                                </a>
-                                                <!-- Item Details -->
-                                                <a href="{{ route('challan.items', $challan->id) }}" class="btn-icon-pill btn-items-pill" title="View Items">
-                                                    <i class="bi bi-box-seam"></i>
-                                                </a> 
-                                                <!-- Edit -->
-                                                <a href="{{ route('challan.edit', $challan->id) }}" class="btn-icon-pill btn-edit-pill" title="Edit Challan">
-                                                    <i class="bi bi-pencil"></i>
-                                                </a>
-                                                <!-- Delete -->
-                                                <form action="{{ route('challan.softDelete', $challan->id) }}" method="POST" style="display:inline;">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn-icon-pill btn-delete-pill" onclick="return confirm('Are you sure you want to delete this challan?');" title="Delete Challan">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-
                     </div>
+
+                    <!-- Summary Metrics Bar -->
+                    @php
+                        $totalSentKgs = 0;
+                        $totalReturnedKgs = 0;
+                        $totalSentPcs = 0;
+                        $totalReturnedPcs = 0;
+                        foreach($challans as $challan) {
+                            foreach($challan->items as $item) {
+                                $totalSentKgs += (float)$item->total_qty;
+                                $totalReturnedKgs += (float)$item->returns->sum('quantity_returned');
+                                $totalSentPcs += (int)$item->piece_no;
+                                $totalReturnedPcs += (int)$item->returns->sum('piece_returned');
+                            }
+                        }
+                    @endphp
+                    <div class="summary-metrics-bar">
+                        <div class="metric-chip">
+                            <div class="metric-icon-box" style="background:#e0f2fe; color:#0284c7;">
+                                <i class="bi bi-files"></i>
+                            </div>
+                            <div>
+                                <div class="metric-title">Total Outward Challans</div>
+                                <div class="metric-value">{{ count($challans) }}</div>
+                            </div>
+                        </div>
+                        <div class="metric-chip">
+                            <div class="metric-icon-box" style="background:#ecfdf5; color:#059669;">
+                                <i class="bi bi-box-seam"></i>
+                            </div>
+                            <div>
+                                <div class="metric-title">Total Sent</div>
+                                <div class="metric-value">{{ number_format($totalSentKgs, 3) }} kg <span class="fs-6 fw-normal text-muted">({{ $totalSentPcs }} Pcs)</span></div>
+                            </div>
+                        </div>
+                        <div class="metric-chip">
+                            <div class="metric-icon-box" style="background:#fef3c7; color:#d97706;">
+                                <i class="bi bi-arrow-return-left"></i>
+                            </div>
+                            <div>
+                                <div class="metric-title">Total Returned</div>
+                                <div class="metric-value">{{ number_format($totalReturnedKgs, 3) }} kg <span class="fs-6 fw-normal text-muted">({{ $totalReturnedPcs }} Pcs)</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bulk Import Modal -->
+                    <div class="modal fade" id="bulkImportModal" tabindex="-1" aria-labelledby="bulkImportModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content" style="border-radius: 16px; border: 1px solid #e2e8f0; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);">
+                                <div class="modal-header" style="border-bottom: 1px solid #f1f5f9; padding: 20px 24px;">
+                                    <h5 class="modal-title fw-bold" id="bulkImportModalLabel" style="color:#0f172a;">Bulk Import Challans</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <form action="{{ route('challan.bulkImport') }}" method="POST" enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="modal-body" style="padding: 24px;">
+                                        <div class="mb-3">
+                                            <label for="excel_file" class="form-label fw-semibold" style="color:#334155;">Choose Excel or CSV File</label>
+                                            <input type="file" class="form-control" name="excel_file" id="excel_file" required style="border-radius: 10px; padding: 10px;">
+                                            <div class="form-text text-muted small mt-1">Supported file formats: .xlsx, .xls, .csv</div>
+                                        </div>
+                                        <div class="alert alert-info border-0 rounded-3 d-flex align-items-center gap-2" style="background:#f0f9ff; color:#0369a1;">
+                                            <i class="bi bi-info-circle-fill fs-5"></i>
+                                            <span>Download the sample template below to ensure correct formatting.</span>
+                                        </div>
+                                        <a href="{{ route('challan.sampleDownload') }}" class="btn btn-sm btn-link text-decoration-none fw-bold p-0" style="color:#0284c7;">
+                                            <i class="bi bi-download me-1"></i> Download Sample Excel Template
+                                        </a>
+                                    </div>
+                                    <div class="modal-footer" style="border-top: 1px solid #f1f5f9; padding: 16px 24px;">
+                                        <button type="button" class="btn btn-light fw-semibold" data-bs-dismiss="modal" style="border-radius: 8px;">Close</button>
+                                        <button type="submit" class="btn-gold" style="box-shadow: none;">Upload & Import</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Table -->
+                    <div class="table-responsive">
+                        <table class="table align-middle" id="challanTable">
+                            <thead>
+                                <tr>
+                                    <th>Challan No</th>
+                                    <th>Client Name</th>
+                                    <th>Date</th>
+                                    <th>Purpose</th>
+                                    <th>Sent (Kgs / Pcs)</th>
+                                    <th>Returned (Kgs / Pcs)</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($challans as $challan)
+                                @php
+                                    $sentKgs = $challan->items ? $challan->items->sum('total_qty') : 0;
+                                    $sentPcs = $challan->items ? $challan->items->sum('piece_no') : 0;
+                                    $receivedKgs = 0;
+                                    $receivedPcs = 0;
+                                    if ($challan->items) {
+                                        foreach ($challan->items as $item) {
+                                            if ($item->returns) {
+                                                $receivedKgs += $item->returns->sum('quantity_returned');
+                                                $receivedPcs += $item->returns->sum('piece_returned');
+                                            }
+                                        }
+                                    }
+                                @endphp
+                                <tr>
+                                    <td class="fw-bold" style="color:#0f172a;">{{ $challan->challan_number }}</td>
+                                    <td class="fw-semibold" style="color:#334155;">{{ $challan->industry_name ?? optional($challan->company)->industry_name ?? '-' }}</td>
+                                    <td style="color:#475569;">{{ date('d-m-Y', strtotime($challan->date)) }}</td>
+                                    <td>
+                                        <span class="badge-purpose">
+                                            {{ optional($challan->purpose)->name ?? 'General' }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge-kgs-sent">
+                                            <i class="bi bi-box-arrow-up-right" style="font-size: 0.75rem;"></i>
+                                            {{ number_format($sentKgs, 3) }} kg ({{ $sentPcs }} Pcs)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge-kgs-received {{ $receivedKgs > 0 ? 'received-active' : 'received-zero' }}">
+                                            <i class="bi bi-box-arrow-in-down-left" style="font-size: 0.75rem;"></i>
+                                            {{ number_format($receivedKgs, 3) }} kg ({{ $receivedPcs }} Pcs)
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <div class="btn-action-group">
+                                            <!-- View -->
+                                            <a href="{{ route('challan.view', $challan->id) }}" class="btn-icon-pill btn-view-pill" title="View Challan">
+                                                <i class="bi bi-eye"></i>
+                                            </a>
+                                            <!-- Print -->
+                                            <a href="{{ route('challan.print', $challan->id) }}" class="btn-icon-pill btn-print-pill" title="Print Challan">
+                                                <i class="bi bi-printer"></i>
+                                            </a>
+                                            <!-- Item Details -->
+                                            <a href="{{ route('challan.items', $challan->id) }}" class="btn-icon-pill btn-items-pill" title="View Items">
+                                                <i class="bi bi-box-seam"></i>
+                                            </a> 
+                                            <!-- Edit -->
+                                            <a href="{{ route('challan.edit', $challan->id) }}" class="btn-icon-pill btn-edit-pill" title="Edit Challan">
+                                                <i class="bi bi-pencil"></i>
+                                            </a>
+                                            <!-- Delete -->
+                                            <form action="{{ route('challan.softDelete', $challan->id) }}" method="POST" style="display:inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn-icon-pill btn-delete-pill" onclick="return confirm('Are you sure you want to delete this challan?');" title="Delete Challan">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+
                 </div>
             </div>
 

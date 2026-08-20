@@ -98,7 +98,7 @@
                     @yield('content')
                 <!-- ==================== Footer Start Here ==================== -->
             
-                @if (Session::has('company_id') && Session::has('financial_year'))
+                @if (Session::has('company_id') && Session::has('financial_year_id'))
                     @include('layouts.footer')
                 @endif
                 <!-- ==================== Footer End Here ==================== -->

@@ -310,6 +310,11 @@
         border-color: #f59e0b !important;
         box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15) !important;
     }
+
+    .form--control.is-invalid {
+        border-color: #ef4444 !important;
+        background-color: #fef2f2 !important;
+    }
 </style>
 @endpush
 
@@ -331,6 +336,22 @@
                             </div>
                         </div>
 
+                        @if(session('error'))
+                            <div class="alert alert-danger alert-dismissible fade show d-flex align-items-center gap-2 mb-4" role="alert" style="border-radius: 8px; border: 1px solid #fecdd3; background-color: #fff1f2; color: #e11d48;">
+                                <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+                                <div>{{ session('error') }}</div>
+                                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        @endif
+
+                        @if(session('success'))
+                            <div class="alert alert-success alert-dismissible fade show d-flex align-items-center gap-2 mb-4" role="alert" style="border-radius: 8px; border: 1px solid #a7f3d0; background-color: #ecfdf5; color: #047857;">
+                                <i class="bi bi-check-circle-fill fs-5"></i>
+                                <div>{{ session('success') }}</div>
+                                <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        @endif
+
                         <!-- Content -->
                         <div class="table-responsive">
                             <table class="table" id="challanTable">
@@ -340,7 +361,9 @@
                                         <th>Item Name</th>
                                         <th>Total Qty (Kgs)</th>
                                         <th>Qty Used</th>
-                                        <th>Pieces</th> 
+                                        <th>Total Pcs</th>
+                                        <th>Returned Pcs</th>
+                                        <th>Remaining Pcs</th> 
                                         <th>Status</th>
                                         <th>Action</th>
                                     </tr>
@@ -349,8 +372,9 @@
                                     @foreach($challan->inwarditems as $key => $item)
                                         @php
                                             $totalReturned = max(0, $item->goodsStocks->sum('kgs'));
+                                            $returnedPieces = max(0, $item->goodsStocks->sum('pcs'));
                                             $remainingQty = max(0, $item->qty - $totalReturned);
-                                            $remainingpiece = max(0, $item->piece_no - $item->goodsStocks->sum('pcs'));
+                                            $remainingpiece = max(0, $item->piece_no - $returnedPieces);
                                             $status = ($remainingQty <= 0) ? 'Completed' : 'Pending';
                                             $lastStock = $item->goodsStocks->sortByDesc('id')->first();
                                         @endphp
@@ -359,7 +383,9 @@
                                             <td class="fw-bold text-dark">{{ $item->item_name }}</td>
                                             <td>{{ number_format($item->qty, 3) }}</td>
                                             <td>{{ number_format($totalReturned, 3) }}</td>
-                                            <td>{{ $remainingpiece ?? '-' }}</td>
+                                            <td>{{ $item->piece_no ?? 0 }}</td>
+                                            <td class="{{ $returnedPieces > 0 ? 'text-success fw-bold' : 'text-muted' }}">{{ $returnedPieces }}</td>
+                                            <td class="fw-bold {{ $remainingpiece > 0 ? 'text-primary' : 'text-muted' }}">{{ $remainingpiece }}</td>
                                             <td>
                                                 @if($status == 'Completed')
                                                     <span class="badge-pill badge-success">Completed</span>
@@ -402,19 +428,38 @@
 
 <!-- Modals -->
 @foreach($challan->inwarditems as $key => $item)
+@php
+    $totalReturnedInwardModal = max(0, $item->goodsStocks->sum('kgs'));
+    $returnedPcsInwardModal = max(0, $item->goodsStocks->sum('pcs'));
+    $remainingQtyInwardModal = max(0, $item->qty - $totalReturnedInwardModal);
+    $remainingPcsInwardModal = max(0, $item->piece_no - $returnedPcsInwardModal);
+@endphp
 <div id="updateReturnModal-{{ $item->id }}" class="white-popup mfp-hide">
-    <div class="modal-header-custom">
-        <h5 class="modal-title">
-            Return Prepared Items
-            <small class="modal-subtitle">
-                {{ $item->item_name }} &bull; Total: <strong>{{ number_format($item->qty, 3) }} KG</strong>
-            </small>
-        </h5>
+    <div class="modal-header-custom mb-3">
+        <h5 class="modal-title mb-2">Return Prepared Items</h5>
+        <div class="modal-subtitle d-flex flex-wrap gap-2 align-items-center">
+            <span class="fw-bold text-dark fs-6 me-2">{{ $item->item_name }}</span>
+            <span class="badge bg-light text-secondary border px-2 py-1" style="font-size: 0.8rem;">
+                <i class="bi bi-box-arrow-up-right me-1"></i>Total Sent: <strong>{{ number_format($item->qty, 3) }} KG</strong> ({{ $item->piece_no ?? 0 }} Pcs)
+            </span>
+            <span class="badge bg-light text-success border border-success-subtle px-2 py-1" style="font-size: 0.8rem;">
+                <i class="bi bi-check2-circle me-1"></i>Returned: <strong>{{ number_format($totalReturnedInwardModal, 3) }} KG</strong> ({{ $returnedPcsInwardModal }} Pcs)
+            </span>
+            <span class="badge bg-light text-warning border border-warning-subtle px-2 py-1" style="font-size: 0.8rem; color: #b45309 !important;">
+                <i class="bi bi-hourglass-split me-1"></i>Remaining: <strong>{{ number_format($remainingQtyInwardModal, 3) }} KG</strong> ({{ $remainingPcsInwardModal }} Pcs)
+            </span>
+        </div>
     </div>
     
-    <form method="POST" action="{{ route('inward.return-items.store') }}">
+    <form method="POST" action="{{ route('inward.return-items.store') }}" class="inward-return-form" data-remaining="{{ $remainingQtyInwardModal }}">
         @csrf
         <input type="hidden" name="inward_challan_items_id" value="{{ $item->id }}">
+        
+        <!-- Dynamic Error Alert inside Modal -->
+        <div class="modal-error-alert alert alert-danger d-none align-items-center gap-2 mb-3" style="border-radius: 8px; border: 1px solid #fecdd3; background-color: #fff1f2; color: #e11d48;">
+            <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+            <span class="error-msg fw-semibold"></span>
+        </div>
         
         <div id="return-items-container-{{ $item->id }}">
             <div class="row g-2 return-item-row mb-2 align-items-end">
@@ -558,6 +603,44 @@ $(document).ready(function() {
     document.addEventListener('click', function (e) {
         if (e.target.closest('.remove-row-btn')) {
             e.target.closest('.return-item-row').remove();
+        }
+    });
+
+    // Validate Inward Return Form against Remaining Quantity
+    $('.inward-return-form').on('submit', function(e) {
+        var form = $(this);
+        var remainingQty = parseFloat(form.data('remaining')) || 0;
+
+        var totalEnteredKgs = 0;
+        form.find('input[name*="[kgs]"]').each(function() {
+            var val = parseFloat($(this).val()) || 0;
+            totalEnteredKgs += val;
+        });
+
+        // Reset previous error state
+        var errorBox = form.find('.modal-error-alert');
+        errorBox.addClass('d-none').removeClass('d-flex');
+        form.find('.form--control').removeClass('is-invalid');
+
+        if (totalEnteredKgs > (remainingQty + 0.0001)) {
+            e.preventDefault();
+            
+            var msg = 'Quantity Exceeded! Total entered (' + totalEnteredKgs.toFixed(3) + ' KG) exceeds available remaining quantity (' + remainingQty.toFixed(3) + ' KG). Cannot save!';
+            
+            // Show error box in modal
+            errorBox.find('.error-msg').text(msg);
+            errorBox.removeClass('d-none').addClass('d-flex');
+            
+            // Highlight input fields
+            form.find('input[name*="[kgs]"]').each(function() {
+                if ((parseFloat($(this).val()) || 0) > 0) {
+                    $(this).addClass('is-invalid');
+                }
+            });
+
+            // Show error dialog box
+            alert('⚠️ Cannot Save Return:\n\n' + msg);
+            return false;
         }
     });
 });
