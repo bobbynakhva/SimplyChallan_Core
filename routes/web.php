@@ -30,6 +30,8 @@ Route::get('/loginpost', function() { return redirect()->route('login'); });
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 Route::post('/activate-license', [LicenseController::class, 'activate'])->name('license.activate');
 
+use App\Http\Controllers\SystemUpdateController;
+
 Route::middleware('auth')->group(function () {
     Route::get('/', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     Route::get('/privacypolicy', [App\Http\Controllers\HomeController::class, 'privacypolicy'])->name('privacypolicy');
@@ -47,6 +49,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/settings/backup', [App\Http\Controllers\BackupController::class, 'index'])->name('backup.index');
     Route::post('/settings/backup/export', [App\Http\Controllers\BackupController::class, 'export'])->name('backup.export');
     Route::post('/settings/backup/restore', [App\Http\Controllers\BackupController::class, 'restore'])->name('backup.restore');
+
+    // One-Click System Update
+    Route::post('/system/update', [SystemUpdateController::class, 'update'])->name('system.update');
 });
 
 

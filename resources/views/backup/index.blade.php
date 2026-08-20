@@ -164,6 +164,13 @@
                         </div>
                     @endif
 
+                    @if(session('info'))
+                        <div class="alert alert-info shadow-sm" style="background-color: #eff6ff; color: #1e40af; border-left: 4px solid #3b82f6;">
+                            <i class="bi bi-info-circle-fill fz-20"></i> 
+                            <div>{{ session('info') }}</div>
+                        </div>
+                    @endif
+
                     @if(session('error'))
                         <div class="alert alert-danger shadow-sm">
                             <i class="bi bi-exclamation-triangle-fill fz-20"></i> 
@@ -172,6 +179,30 @@
                     @endif
 
                     <div class="row g-4">
+                        <!-- System Update Section -->
+                        <div class="col-md-12 mb-2">
+                            <div class="premium-card" style="background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border-left: 5px solid #6366f1;">
+                                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div style="width: 52px; height: 52px; border-radius: 14px; background: #e0e7ff; display: flex; align-items: center; justify-content: center; color: #4338ca;">
+                                            <i class="bi bi-cloud-arrow-down-fill fz-24"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="mb-1" style="font-weight: 700;">Check & Install System Updates</h4>
+                                            <p class="text-muted mb-0" style="font-size: 0.9rem;">Pull the latest software updates and features directly from GitHub with a single click.</p>
+                                        </div>
+                                    </div>
+                                    <form action="{{ route('system.update') }}" method="POST" class="m-0">
+                                        @csrf
+                                        <button type="submit" class="btn-backup" style="background: linear-gradient(135deg, #4f46e5 0%, #3730a3 100%); padding: 12px 24px;">
+                                            <i class="bi bi-arrow-repeat fz-18"></i>
+                                            Update System Now
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+
                         <!-- Export Section -->
                         <div class="col-md-6">
                             <div class="premium-card">
