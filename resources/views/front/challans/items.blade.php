@@ -75,6 +75,34 @@
         text-align: center;
     }
 
+    /* === FLEX LAYOUT & FULL WIDTH CONTENT === */
+    .divided__common__body {
+        display: flex;
+        width: 100%;
+    }
+    .divided__common__body .side__sticky {
+        width: 220px;
+        position: fixed;
+        top: 0px;
+        z-index: 99;
+    }
+    .common__body {
+        margin-left: 240px !important;
+        width: calc(100% - 240px) !important;
+        max-width: calc(100% - 240px) !important;
+        flex: 1;
+        min-width: 0;
+        padding: 110px 30px 40px 0 !important;
+        box-sizing: border-box !important;
+    }
+    @media (max-width: 1199px) {
+        .common__body {
+            margin-left: 0 !important;
+            width: 100% !important;
+            padding: 20px 15px !important;
+        }
+    }
+
     /* === MAIN CARD === */
     .challan-card {
         background-color: #ffffff;
@@ -83,6 +111,7 @@
         padding: 30px;
         margin-bottom: 30px;
         border: 1px solid #e2e8f0;
+        width: 100% !important;
     }
 
     /* Page Header */
@@ -102,7 +131,10 @@
     /* Table Styling */
     .table-responsive {
         border-radius: 8px;
-        overflow: hidden;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        -webkit-overflow-scrolling: touch;
+        width: 100% !important;
     }
     #challanTable {
         width: 100% !important;
@@ -113,10 +145,10 @@
         background-color: #f8fafc;
         color: #64748b;
         font-weight: 700;
-        font-size: 0.75rem;
+        font-size: 0.72rem;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        padding: 16px 12px;
+        letter-spacing: 0.03em;
+        padding: 12px 8px;
         border-bottom: 2px solid #e2e8f0;
         border-top: 1px solid #f1f5f9;
         border-right: 1px solid #e2e8f0;
@@ -125,12 +157,13 @@
     #challanTable tbody td {
         background-color: #ffffff;
         color: #334155;
-        font-size: 0.85rem;
+        font-size: 0.82rem;
         font-weight: 500;
-        padding: 12px;
+        padding: 10px 8px;
         border-bottom: 1px solid #f1f5f9;
         border-right: 1px solid #e2e8f0;
         vertical-align: middle;
+        white-space: nowrap;
     }
     #challanTable thead th:last-child,
     #challanTable tbody td:last-child {
@@ -178,15 +211,28 @@
         box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.3);
     }
 
-    /* Modal Styling */
+    /* Modal Styling & Layout Fixes */
     .white-popup {
+        position: relative;
         background: #FFF;
-        padding: 30px;
-        width: auto;
-        max-width: 700px;
+        padding: 35px 40px;
+        width: 100% !important;
+        max-width: 700px !important;
         margin: 20px auto;
         border-radius: 12px;
         box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+        display: block !important;
+    }
+    .white-popup form,
+    .return-form {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+    }
+    .modal-error-alert {
+        width: 100% !important;
+        flex-shrink: 0;
+        margin-bottom: 20px !important;
     }
     .form--label {
         font-weight: 600;
@@ -312,21 +358,25 @@
             </div>
 
             <!-- MAIN CONTENT -->
-            <div class="common__body">
-                <div class="container">
-                    <div class="challan-card">
+            <div class="common__body flex-grow-1 min-vw-0">
+                <div class="challan-card w-100">
                         
                         <!-- Header -->
-                        <div class="page-header">
+                        <div class="page-header d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="page-title">Manage Challan Items</h4>
                                 <span class="text-muted small">Detail view of challan items and returns</span>
+                            </div>
+                            <div>
+                                <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary rounded-pill btn-sm px-3 fw-semibold">
+                                    <i class="bi bi-arrow-left me-1"></i> Back to Challans
+                                </a>
                             </div>
                         </div>
 
                         <!-- Table -->
                         <div class="table-responsive">
-                            <table class="table" id="challanTable">
+                            <table class="table align-middle" id="challanTable">
                                 <thead>
                                     <tr>
                                         <th>#</th>
@@ -390,7 +440,6 @@
                             </table>
                         </div>
 
-                    </div>
                 </div>
             </div>
 
@@ -496,7 +545,7 @@ $(document).ready(function() {
         "ordering": true,
         "info": true,
         "autoWidth": false,
-        "responsive": true,
+        "responsive": false,
         "language": {
             "search": "_INPUT_",
             "searchPlaceholder": "Search items...",
@@ -510,7 +559,47 @@ $(document).ready(function() {
     $('.popup-content').magnificPopup({
         type: 'inline',
         midClick: true,
-        mainClass: 'mfp-fade'
+        mainClass: 'mfp-fade',
+        removalDelay: 100,
+        callbacks: {
+            open: function() {
+                const modal = $(this.content);
+                setTimeout(function() {
+                    const firstInput = modal.find('input[type="text"]:visible, input[type="number"]:visible, select:visible, textarea:visible').first();
+                    if (firstInput.length) {
+                        firstInput.focus().select();
+                    }
+                }, 50);
+            }
+        }
+    });
+
+    @if(!session()->has('success') && !session()->has('error'))
+    // Auto-open return modal ONLY on fresh page navigation
+    setTimeout(function() {
+        const firstReturnBtn = $('.btn-return.popup-content:visible').first();
+        if (firstReturnBtn.length) {
+            firstReturnBtn.click();
+        }
+    }, 150);
+    @endif
+
+    // Enter Key Navigation inside Return Form:
+    // Field 1 -> Enter -> Field 2 -> Enter -> Last Field -> Enter -> AUTOMATIC SAVE & SUBMIT!
+    $(document).on('keydown', '.return-form input', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const form = $(this).closest('form');
+            const inputs = form.find('input[type="text"]:visible, input[type="number"]:visible, select:visible, textarea:visible');
+            const index = inputs.index(this);
+
+            if (index >= 0 && index < inputs.length - 1) {
+                inputs.eq(index + 1).focus().select();
+            } else {
+                // Submit form immediately on last input
+                form.submit();
+            }
+        }
     });
 
     // Validate Return Form against Remaining Quantity

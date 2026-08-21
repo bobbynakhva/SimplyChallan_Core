@@ -47,7 +47,10 @@
     /* Table Styling */
     .table-responsive {
         border-radius: 8px;
-        overflow: hidden;
+        overflow-x: auto !important;
+        overflow-y: visible !important;
+        -webkit-overflow-scrolling: touch;
+        width: 100% !important;
     }
     #challanTable {
         width: 100% !important;
@@ -61,7 +64,7 @@
         font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        padding: 16px 20px;
+        padding: 12px 14px;
         border-bottom: 2px solid #e2e8f0;
         border-top: 1px solid #f1f5f9;
         white-space: nowrap;
@@ -69,11 +72,12 @@
     #challanTable tbody td {
         background-color: #ffffff;
         color: #334155;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         font-weight: 500;
-        padding: 16px 20px;
+        padding: 12px 14px;
         border-bottom: 1px solid #f1f5f9;
         vertical-align: middle;
+        white-space: nowrap;
     }
     #challanTable tbody tr:last-child td {
         border-bottom: none;
@@ -139,16 +143,29 @@
         border-color: #bfdbfe;
     }
 
-    /* Modal Styling */
+    /* Modal Styling & Vertical Column Layout Fix */
     .white-popup {
         position: relative;
         background: #FFF;
-        padding: 40px;
-        width: auto;
-        max-width: 650px;
+        padding: 35px 40px;
+        width: 100% !important;
+        max-width: 680px !important;
         margin: 20px auto;
         border-radius: 12px;
         box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        display: block !important;
+    }
+    .white-popup form,
+    .inward-return-form,
+    .return-form {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+    }
+    .modal-error-alert {
+        width: 100% !important;
+        flex-shrink: 0;
+        margin-bottom: 20px !important;
     }
     .modal-title {
         font-size: 1.25rem;
@@ -329,10 +346,15 @@
                     <div class="challan-card">
                         
                         <!-- Header -->
-                        <div class="page-header">
+                        <div class="page-header d-flex justify-content-between align-items-center">
                             <div>
                                 <h4 class="page-title">Manage Inward Challan Items</h4>
                                 <span class="text-muted small">View and manage items for this challan</span>
+                            </div>
+                            <div>
+                                <a href="{{ route('inward.dashboard') }}" class="btn btn-outline-secondary rounded-pill btn-sm px-3 fw-semibold">
+                                    <i class="bi bi-arrow-left me-1"></i> Back to Inward Challans
+                                </a>
                             </div>
                         </div>
 
@@ -529,9 +551,6 @@
             </tbody>
         </table>
     </div>
-    <div class="text-end mt-3 pt-2 border-top">
-         <button type="button" class="cmn__btn close-mfp">Close</button>
-    </div>
 </div>
 @endforeach
 
@@ -547,7 +566,7 @@ $(document).ready(function() {
         "ordering": true,
         "info": true,
         "autoWidth": false,
-        "responsive": true,
+        "responsive": false,
         "language": {
             "search": "_INPUT_",
             "searchPlaceholder": "Search items...",
@@ -562,11 +581,50 @@ $(document).ready(function() {
         type: 'inline',
         midClick: true,
         mainClass: 'mfp-fade',
-        removalDelay: 300
+        removalDelay: 100,
+        callbacks: {
+            open: function() {
+                const modal = $(this.content);
+                setTimeout(function() {
+                    const firstInput = modal.find('input[type="text"]:visible, input[type="number"]:visible, select:visible, textarea:visible').first();
+                    if (firstInput.length) {
+                        firstInput.focus().select();
+                    }
+                }, 50);
+            }
+        }
     });
+
+    @if(!session()->has('success') && !session()->has('error'))
+    // Auto-open return modal ONLY on fresh page navigation
+    setTimeout(function() {
+        const firstReturnBtn = $('.btn-return.popup-content:visible').first();
+        if (firstReturnBtn.length) {
+            firstReturnBtn.click();
+        }
+    }, 150);
+    @endif
 
     $(document).on('click', '.close-mfp', function () {
         $.magnificPopup.close();
+    });
+
+    // Enter Key Navigation inside Return Form:
+    // Item Name -> Enter -> Qty -> Enter -> Pieces -> Enter -> AUTOMATIC SAVE & SUBMIT!
+    $(document).on('keydown', '.inward-return-form input', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const form = $(this).closest('form');
+            const inputs = form.find('input[type="text"]:visible, input[type="number"]:visible, select:visible, textarea:visible');
+            const index = inputs.index(this);
+
+            if (index >= 0 && index < inputs.length - 1) {
+                inputs.eq(index + 1).focus().select();
+            } else {
+                // Submit form immediately on last input (Pieces)
+                form.submit();
+            }
+        }
     });
 
     // Dynamic Row Logic
@@ -597,6 +655,9 @@ $(document).ready(function() {
                 </div>
             `;
             container.appendChild(newRow);
+
+            // Focus newly added item input
+            $(newRow).find('input').first().focus();
         });
     });
 
