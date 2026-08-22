@@ -61,6 +61,8 @@ Route::resource('companies', CompanyController::class);
 
 Route::get('/company/select', [CompanyController::class, 'selectForm'])->name('company.select');
 Route::post('/company/select', [CompanyController::class, 'storeSelection']);
+Route::post('/financial-years/store', [FinancialYearController::class, 'store'])->name('financial-years.store');
+Route::post('/financial-years/switch', [FinancialYearController::class, 'switch'])->name('financial-years.switch');
 Route::get('/company/search', [CompanyController::class, 'search'])->name('company.search');
 Route::get('/company', [CompanyController::class, 'index'])->name('companies.view');
 Route::get('/companies/edit/{id}', [CompanyController::class, 'edit'])->name('companies.edit');

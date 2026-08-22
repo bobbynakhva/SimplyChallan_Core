@@ -43,24 +43,31 @@
          </div>
          @auth
             <ul class="main-menu">
+                @if(Session::has('financial_year_id'))
+                    @php
+                        $headerActiveFY = \App\Models\FinancialYear::find(Session::get('financial_year_id'));
+                        $headerActiveComp = Session::has('company_id') ? \App\Models\User::find(Session::get('company_id')) : null;
+                    @endphp
+                    @if($headerActiveFY)
+                        <li class="grid__style me-2">
+                            <a href="{{ route('company.select') }}" class="d-flex align-items-center text-decoration-none px-3 py-1 bg-light border rounded-pill shadow-sm" title="Click to Change Financial Year or Company">
+                                <span class="badge bg-primary text-white me-2">FY: {{ $headerActiveFY->year }}</span>
+                                @if($headerActiveComp)
+                                    <span class="text-dark fw-bold me-2" style="font-size: 0.85rem;"><i class="fa-solid fa-building me-1 text-secondary"></i>{{ $headerActiveComp->name }}</span>
+                                @endif
+                                <span class="text-primary fw-semibold" style="font-size:0.75rem;"><i class="fa-solid fa-rotate me-1"></i>Switch</span>
+                            </a>
+                        </li>
+                    @endif
+                @endif
                 <li class="grid__style">
                     <a href="{{ route('urcompanies.create') }}" class="d-flex">
                         <span>Create Your Company</span>
-                        <!-- <span class="icons">
-                            <i class="material-symbols-outlined">
-                                expand_more
-                            </i>
-                        </span> -->
                     </a>
                 </li>
                 <li class="grid__style">
                     <a href="{{ route('urcompanies.index') }}" class="d-flex">
                         <span>Your Company</span>
-                        <!-- <span class="icons">
-                            <i class="material-symbols-outlined">
-                                expand_more
-                            </i>
-                        </span> -->
                     </a>
                 </li>
             </ul>

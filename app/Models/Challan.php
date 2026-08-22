@@ -83,20 +83,27 @@ class Challan extends Model
 
     public static function generateChallanNumber()
     {
-        // Get the latest challan by ID (or challan_number if you prefer)
-        $currentYear = date('Y');
-        $nextYear = date('Y', strtotime('+1 year'));
-        $financialYear = "{$currentYear}-{$nextYear}";
-        $lastChallan = self::orderByDesc('id')->first();
+        $financialYearId = Session::get('financial_year_id');
+        $fy = FinancialYear::find($financialYearId);
+        if (!$fy) {
+            $currentYear = date('Y');
+            $nextYear = date('Y', strtotime('+1 year'));
+            $financialYear = "{$currentYear}-{$nextYear}";
+        } else {
+            $financialYear = $fy->year;
+        }
 
-        if ($lastChallan) {
-            $lastNumber = (int) $lastChallan->challan_number;
+        $lastChallan = self::where('financial_year_id', $financialYearId)
+            ->orWhere('challan_number', 'LIKE', "%/{$financialYear}")
+            ->orderByDesc('id')
+            ->first();
+
+        if ($lastChallan && preg_match('/^(\d+)\//', $lastChallan->challan_number, $matches)) {
+            $lastNumber = (int) $matches[1];
             $newNumber = str_pad($lastNumber + 1, 3, '0', STR_PAD_LEFT);
         } else {
             $newNumber = '001';
         }
         return "{$newNumber}/{$financialYear}";
     }
-
-
 }

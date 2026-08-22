@@ -59,13 +59,31 @@
 
                                 <div class="col-12">
                                     <div class="contact__form__main__single">
-                                        <label for="financial_year" class="form-label fw-bold mb-2">Select Financial Year</label>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <label for="financial_year" class="form-label fw-bold mb-0">Select Financial Year</label>
+                                            <a href="javascript:void(0)" id="toggleAddFYBtn" class="text-primary fw-bold text-decoration-none" style="font-size: 0.85rem;">
+                                                <i class="fa-solid fa-plus-circle me-1"></i> Add New FY
+                                            </a>
+                                        </div>
                                         <select name="financial_year" id="financial_year" class="form-control select2-search" required>
                                             <option value="">Select Financial Year...</option>
                                             @foreach ($years as $year)
                                                 <option value="{{ $year->id }}" {{ $loop->last ? 'selected' : '' }}>{{ $year->year }}</option>
                                             @endforeach
                                         </select>
+
+                                        <!-- Collapsible Add Financial Year Form -->
+                                        <div id="addFYPanel" class="mt-3 p-3 bg-light rounded border" style="display: none;">
+                                            <h6 class="fw-bold mb-2 text-dark" style="font-size: 0.9rem;"><i class="fa-solid fa-calendar-plus me-1 text-primary"></i> Add New Financial Year</h6>
+                                            <div class="input-group input-group-sm mb-2">
+                                                <input type="text" id="new_fy_input" class="form-control" placeholder="e.g. 2026-2027 or 2026">
+                                                <button type="button" id="saveFYBtn" class="btn btn-primary px-3 fw-semibold">
+                                                    <i class="fa-solid fa-check me-1"></i> Add
+                                                </button>
+                                            </div>
+                                            <small class="text-muted d-block mb-2" style="font-size: 0.75rem;">Format: YYYY-YYYY (e.g. 2026-2027) or enter start year (e.g. 2026)</small>
+                                            <div id="fyAlertMsg" style="display: none;"></div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -92,6 +110,63 @@
                 width: '100%',
                 placeholder: "Type to search...",
                 allowClear: true
+            });
+
+            // Toggle Add FY Panel
+            $('#toggleAddFYBtn').on('click', function(e) {
+                e.preventDefault();
+                $('#addFYPanel').slideToggle(200, function() {
+                    if ($(this).is(':visible')) {
+                        $('#new_fy_input').focus();
+                    }
+                });
+            });
+
+            // Save New FY via AJAX
+            $('#saveFYBtn').on('click', function(e) {
+                e.preventDefault();
+                let yearVal = $('#new_fy_input').val().trim();
+                let alertBox = $('#fyAlertMsg');
+                let btn = $(this);
+
+                if (!yearVal) {
+                    alertBox.removeClass().addClass('alert alert-warning py-1 px-2 mb-0').html('<small>Please enter a financial year (e.g., 2026-2027)</small>').show();
+                    return;
+                }
+
+                btn.prop('disabled', true).html('<i class="fa-solid fa-spinner fa-spin"></i>');
+
+                $.ajax({
+                    url: "{{ route('financial-years.store') }}",
+                    type: "POST",
+                    data: {
+                        year: yearVal,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        btn.prop('disabled', false).html('<i class="fa-solid fa-check me-1"></i> Add');
+                        if (response.success) {
+                            let newOption = new Option(response.financial_year.year, response.financial_year.id, true, true);
+                            $('#financial_year').append(newOption).trigger('change');
+                            $('#new_fy_input').val('');
+                            alertBox.removeClass().addClass('alert alert-success py-1 px-2 mb-0').html('<small>' + response.message + '</small>').show();
+                            setTimeout(function() {
+                                $('#addFYPanel').slideUp();
+                                alertBox.hide();
+                            }, 1500);
+                        }
+                    },
+                    error: function(xhr) {
+                        btn.prop('disabled', false).html('<i class="fa-solid fa-check me-1"></i> Add');
+                        let errorMsg = 'Failed to add financial year.';
+                        if (xhr.responseJSON && xhr.responseJSON.errors && xhr.responseJSON.errors.year) {
+                            errorMsg = xhr.responseJSON.errors.year[0];
+                        } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                            errorMsg = xhr.responseJSON.message;
+                        }
+                        alertBox.removeClass().addClass('alert alert-danger py-1 px-2 mb-0').html('<small>' + errorMsg + '</small>').show();
+                    }
+                });
             });
         });
     </script>
